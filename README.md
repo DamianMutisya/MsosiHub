@@ -1,6 +1,6 @@
 # MsosiHub
 
-MsosiHub is a comprehensive recipe management and meal planning application, focusing on East African cuisine. It provides users with a platform to discover, save, and share recipes, as well as create personalized meal plans.
+MsosiHub is a comprehensive recipe management and meal planning application, focusing on Kenyan cuisine. It provides users with a platform to discover, save, and share recipes, as well as create personalized meal plans.
 
 ## Features
 
