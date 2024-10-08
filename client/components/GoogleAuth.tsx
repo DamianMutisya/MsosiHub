@@ -26,6 +26,7 @@ export function GoogleAuth({ onSuccess }: GoogleAuthProps) {
     <GoogleLogin
       onSuccess={handleGoogleResponse}
       onError={() => console.log('Login Failed')}
+      cookiePolicy={'single_host_origin'}
     />
   );
 }
