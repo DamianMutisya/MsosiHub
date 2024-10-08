@@ -1,6 +1,6 @@
 # MsosiHub
 
-MsosiHub is a comprehensive recipe management and meal planning application, focusing on Kenyan cuisine. It provides users with a platform to discover, save, and share recipes, as well as create personalized meal plans.
+MsosiHub is a comprehensive recipe management and meal planning application, focusing on East African cuisine. It provides users with a platform to discover, save, and share recipes, as well as create personalized meal plans.
 
 ## Features
 
@@ -16,9 +16,12 @@ MsosiHub is a comprehensive recipe management and meal planning application, foc
 ## Tech Stack
 
 - Backend: Node.js with Express.js
+- Frontend: Next.js with React
 - Database: MongoDB with Mongoose ODM
 - Authentication: Passport.js with Google OAuth 2.0
-- Frontend: React.js (not included in this repository)
+- Styling: Tailwind CSS
+
+
 
 ## Getting Started
 
@@ -36,12 +39,19 @@ MsosiHub is a comprehensive recipe management and meal planning application, foc
    cd MsosiHub
    ```
 
-2. Install dependencies:
+2. Install backend dependencies:
    ```
+   cd server
    npm install
    ```
 
-3. Create a `.env` file in the root directory and add the following environment variables:
+3. Install frontend dependencies:
+   ```
+   cd ../client
+   npm install
+   ```
+
+4. Create a `.env` file in the server directory and add the following environment variables:
    ```
    MONGODB_URI=your_mongodb_connection_string
    GOOGLE_CLIENT_ID=your_google_client_id
@@ -52,10 +62,19 @@ MsosiHub is a comprehensive recipe management and meal planning application, foc
    EDAMAM_APP_KEY=your_edamam_app_key
    ```
 
-4. Start the server:
+5. Start the backend server:
    ```
+   cd ../server
    npm run dev
    ```
+
+6. In a new terminal, start the frontend development server:
+   ```
+   cd ../client
+   npm run dev
+   ```
+
+7. Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 ## API Endpoints
 
