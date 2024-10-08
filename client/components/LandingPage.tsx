@@ -1,9 +1,9 @@
 'use client'
 
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/Button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card"
+import { Avatar, AvatarFallback } from "@/components/ui/Avatar"
 import { Utensils, Users, BookOpen, ArrowRight } from 'lucide-react'
 import { useRouter } from 'next/navigation';
 import { AuthDialog } from './authdialog';
