@@ -8,6 +8,7 @@ import { Utensils, Users, BookOpen, ArrowRight } from 'lucide-react'
 import { useRouter } from 'next/navigation';
 import { AuthDialog } from './authdialog';
 import Image from 'next/image';
+import { GoogleOAuthProvider } from '@react-oauth/google';
 
 export function LandingPage() {
   const router = useRouter();
@@ -48,61 +49,63 @@ export function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900">
-      <div className="relative">
-        <Image
-          src="/images/kenya.jpg"
-          alt="Kenyan Background"
-          fill
-          className="object-cover opacity-50"
-        />
-        <div className="relative z-10">
-          <header className="container mx-auto px-4 py-6">
-            <div className="flex justify-between items-center">
-              <div className="flex items-center space-x-4">
-                <Image src="/images/logo.png" alt="MsosiHub Logo" width={120} height={120} />
+    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ''}>
+      <div className="min-h-screen bg-gray-900">
+        <div className="relative">
+          <Image
+            src="/images/kenya.jpg"
+            alt="Kenyan Background"
+            fill
+            className="object-cover opacity-50"
+          />
+          <div className="relative z-10">
+            <header className="container mx-auto px-4 py-6">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center space-x-4">
+                  <Image src="/images/logo.png" alt="MsosiHub Logo" width={120} height={120} />
+                </div>
               </div>
-            </div>
-          </header>
+            </header>
 
-          <div className="container mx-auto px-4 py-20 text-center text-white">
-            <h1 className="text-5xl font-bold mb-6">Discover the Flavors of East Africa</h1>
-            <p className="text-xl mb-8">Explore, cook, and share authentic East African recipes</p>
-            <Button size="lg" onClick={openAuth} className="bg-green-600 hover:bg-green-700 text-white">
-              Get Started
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
+            <div className="container mx-auto px-4 py-20 text-center text-white">
+              <h1 className="text-5xl font-bold mb-6">Discover the Flavors of East Africa</h1>
+              <p className="text-xl mb-8">Explore, cook, and share authentic East African recipes</p>
+              <Button size="lg" onClick={openAuth} className="bg-green-600 hover:bg-green-700 text-white">
+                Get Started
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </div>
           </div>
         </div>
+
+        <main>
+          <FeatureSection />
+          <TestimonialSection />
+        </main>
+
+        <footer className="bg-green-600 text-white py-8">
+          <div className="container mx-auto px-4 text-center">
+            <Image src="/images/logo.png" alt="MsosiHub Logo" width={90} height={90} className="mx-auto mb-4" />
+            <p>&copy; 2023 MsosiHub. All rights reserved.</p>
+          </div>
+        </footer>
+
+        <AuthDialog 
+          isOpen={isAuthOpen} 
+          onOpenChange={setIsAuthOpen} 
+          onSignUp={handleSignUp}
+          onLogin={handleLogin}
+          onGoogleLogin={handleGoogleLogin}
+        />
+
+        {toasts.map((toast, index) => (
+          <div key={index} className="fixed bottom-4 right-4 bg-white border border-gray-300 rounded-lg shadow-lg p-4 max-w-sm">
+            <h4 className="font-bold">{toast.title}</h4>
+            <p>{toast.description}</p>
+          </div>
+        ))}
       </div>
-
-      <main>
-        <FeatureSection />
-        <TestimonialSection />
-      </main>
-
-      <footer className="bg-green-600 text-white py-8">
-        <div className="container mx-auto px-4 text-center">
-          <Image src="/images/logo.png" alt="MsosiHub Logo" width={90} height={90} className="mx-auto mb-4" />
-          <p>&copy; 2023 MsosiHub. All rights reserved.</p>
-        </div>
-      </footer>
-
-      <AuthDialog 
-        isOpen={isAuthOpen} 
-        onOpenChange={setIsAuthOpen} 
-        onSignUp={handleSignUp}
-        onLogin={handleLogin}
-        onGoogleLogin={handleGoogleLogin}
-      />
-
-      {toasts.map((toast, index) => (
-        <div key={index} className="fixed bottom-4 right-4 bg-white border border-gray-300 rounded-lg shadow-lg p-4 max-w-sm">
-          <h4 className="font-bold">{toast.title}</h4>
-          <p>{toast.description}</p>
-        </div>
-      ))}
-    </div>
+    </GoogleOAuthProvider>
   )
 }
 
