@@ -1,9 +1,11 @@
-import Homepage from "@/components/homepage.tsx"
+'use client'
+
+import { EnhancedKenyanRecipeExplorerComponent } from "@/components/homepage"
 
 export default function Dashboard() {
   return (
     <main>
-      <Homepage />
+      <EnhancedKenyanRecipeExplorerComponent />
     </main>
   )
 }
