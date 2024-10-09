@@ -1,5 +1,5 @@
 import React from 'react';
-import { GoogleLogin } from '@react-oauth/google';
+import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import axios from 'axios';
 
 interface GoogleAuthProps {
@@ -7,7 +7,7 @@ interface GoogleAuthProps {
 }
 
 export function GoogleAuth({ onSuccess }: GoogleAuthProps) {
-  const handleGoogleResponse = async (credentialResponse: any) => {
+  const handleGoogleResponse = async (credentialResponse: CredentialResponse) => {
     try {
       const { data } = await axios.post('http://localhost:5000/api/users/google-login', {
         token: credentialResponse.credential,

@@ -2,16 +2,11 @@ import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
 import axios from 'axios';
-import { RecipeDetailsModal } from './RecipeDetailsModal';
+import { RecipeDetailsModal, RecipeDetail } from './RecipeDetailsModal'; // Import RecipeDetail
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-// Define a type for your search result
-type SearchResult = {
-  recipe_name: string;
-  ingredients: string[];
-  instructions: string[];
-  youtubeLink?: string;
-};
+// Use the imported RecipeDetail type
+type SearchResult = RecipeDetail;
 
 interface SearchComponentProps {
   onSearchResults: (results: SearchResult[]) => void;
@@ -34,8 +29,14 @@ export function SearchComponent({ onSearchResults }: SearchComponentProps) {
         params: { q: searchTerm }
       });
       
-      setSearchResults(response.data);
-      onSearchResults(response.data);
+      // Add _id if it's missing
+      const resultsWithId = response.data.map(result => ({
+        ...result,
+        _id: result._id || `temp-${Math.random().toString(36).substr(2, 9)}`
+      }));
+
+      setSearchResults(resultsWithId);
+      onSearchResults(resultsWithId);
       setIsModalOpen(true);
     } catch (error) {
       console.error('Error searching for recipes:', error);

@@ -6,9 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Search, Twitter, Instagram, MessageSquare, Star, Clock, ChefHat, Calendar, BookOpen, Heart, User } from "lucide-react"
+import { Search, Twitter, Instagram, MessageSquare, Star, Clock, ChefHat, Calendar, Heart,} from "lucide-react"
 import { RecipeDetailsModal } from './RecipeDetailsModal';
 import axios from 'axios';
 import KenyanMealPlanner from './KenyanMealPlanner';
@@ -21,8 +19,10 @@ import { Facebook, Youtube } from 'lucide-react'
 import { Book, Users, Lightbulb, UserPlus } from 'lucide-react'
 import { CategoryRecipeCard } from './CategoryRecipeCard';
 
+
+
 export interface Recipe {
-  _id: string;  // MongoDB typically uses _id
+  _id: string;  
   recipe_name: string;
   description?: string;
   image_url?: string;
@@ -32,19 +32,36 @@ export interface Recipe {
   ingredients?: string[];
   instructions?: string[];
   youtubeLink?: string;
-  [key: string]: any;  // This allows for additional properties
 }
 
+// Add this type definition near the top of your file
+type RecipeDetail = {
+  _id: string;
+  recipe_name: string;
+  description?: string;
+  ingredients?: string[];
+  instructions?: string[];
+  // Add other properties as needed
+};
+
+// At the top of your file, add or update this interface
+/*interface RecipeDetailsProps {
+  recipes: RecipeDetail[];
+  isOpen: boolean;
+  onClose: () => void;
+  onError: (error: Error) => void;
+}*/
+
 export function EnhancedKenyanRecipeExplorerComponent() {
-  const [, setShowAddRecipe] = useState(false)
+
+  const [selectedCategory] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [recommendations, setRecommendations] = useState<Recipe[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [recommendations,] = useState<Recipe[]>([]);
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,23 +74,7 @@ export function EnhancedKenyanRecipeExplorerComponent() {
     }
   };
 
-  const fetchRecipesByCategory = async (category: string | null) => {
-    setLoading(true);
-    try {
-      const response = await axios.get<Recipe[]>('http://localhost:5000/api/recipes', {
-        params: {
-          category: category,
-          page: 1,
-        },
-      });
-      setRecipes(response.data);
-      setPage(1);
-    } catch (error) {
-      console.error('Error fetching recipes by category:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
   const loadMoreRecipes = async () => {
     if (loading) return;
@@ -94,20 +95,7 @@ export function EnhancedKenyanRecipeExplorerComponent() {
     }
   };
 
-  const fetchRecommendations = async (category: string) => {
-    try {
-      console.log(`Fetching recommendations for category: ${category}`);
-      const response = await axios.get<Recipe[]>(`http://localhost:5000/api/recommendations?category=${category}`);
-      console.log('Recommendations response:', response.data);
-      setRecommendations(response.data);
-    } catch (error) {
-      console.error('Error fetching recommendations:', error);
-      if (axios.isAxiosError(error)) {
-        console.error('Error response:', error.response?.data);
-        console.error('Error request URL:', error.config?.url);
-      }
-    }
-  };
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
 
   const quickFilters = ['']
@@ -163,10 +151,12 @@ export function EnhancedKenyanRecipeExplorerComponent() {
         <main className="flex-grow container mx-auto px-4 py-8">
           <TabsContent value="discover">
             <div className="mb-8 relative">
-              <img 
-                src="/images/kenya.avif" 
-                alt="Kenyan Cuisine" 
-                className="w-full h-64 object-cover rounded-lg"
+              <Image
+                src="/images/kenya.avif"
+                alt="Description of the image"
+                width={500} // Adjust based on your image size
+                height={300} // Adjust based on your image size
+                layout="responsive"
               />
               <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white rounded-lg">
                 <h1 className="text-4xl font-bold mb-4">Discover the Flavors of Kenya</h1>
@@ -350,7 +340,7 @@ function RecipeCard({ title, description, image, rating, time, difficulty }: {
   difficulty: string;
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [recipeDetails, setRecipeDetails] = useState<any[]>([]);
+  const [recipeDetails, setRecipeDetails] = useState<RecipeDetail[]>([]);
 
   const handleViewRecipe = async () => {
     try {
@@ -365,10 +355,12 @@ function RecipeCard({ title, description, image, rating, time, difficulty }: {
   return (
     <Card className="overflow-hidden transition-transform duration-300 hover:scale-105">
       <CardHeader className="p-0">
-        <img 
+        <Image 
           src={image}
           alt={title} 
-          className="w-full h-48 object-cover" 
+          width={300}
+          height={200}
+          layout="responsive"
         />
       </CardHeader>
       <CardContent className="p-4">
@@ -397,7 +389,7 @@ function RecipeCard({ title, description, image, rating, time, difficulty }: {
         <Button onClick={handleViewRecipe} className="bg-green-600 hover:bg-green-700 text-white">View Recipe</Button>
       </CardFooter>
       <RecipeDetailsModal
-        recipes={recipeDetails}
+        recipes={recipeDetails}  
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onError={(error: Error) => console.error('Error fetching recipe details:', error)}
@@ -434,7 +426,7 @@ function FeedbackDialog() {
         <DialogHeader>
           <DialogTitle>Send Feedback</DialogTitle>
           <DialogDescription>
-            We value your input! Please share your thoughts, suggestions, or report any issues you've encountered.
+          We value your input! Please share your thoughts, suggestions, or report any issues you&apos;ve encountered
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
