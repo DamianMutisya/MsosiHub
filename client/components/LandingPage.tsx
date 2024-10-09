@@ -68,8 +68,8 @@ export function LandingPage() {
             </header>
 
             <div className="container mx-auto px-4 py-20 text-center text-white">
-              <h1 className="text-5xl font-bold mb-6">Discover the Flavors of East Africa</h1>
-              <p className="text-xl mb-8">Explore, cook, and share authentic East African recipes</p>
+              <h1 className="text-5xl font-bold mb-6">Discover the Flavors of Kenya</h1>
+              <p className="text-xl mb-8">Explore, cook, and share authentic Kenyan Recipes</p>
               <Button size="lg" onClick={openAuth} className="bg-green-600 hover:bg-green-700 text-white">
                 Get Started
                 <ArrowRight className="ml-2 h-5 w-5" />
