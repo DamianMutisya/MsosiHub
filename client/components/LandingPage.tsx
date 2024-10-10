@@ -22,6 +22,13 @@ export function LandingPage() {
     }, 3000);
   };
 
+  const handleAuthSuccess = (userData: { username: string; email: string }) => {
+    // Close the auth dialog if it's open
+    setIsAuthOpen(false);
+    // Add any other necessary state updates or side effects
+    router.push('/dashboard');
+  };
+
   const handleSignUp = (userData: { username: string; email: string }) => {
     setIsAuthOpen(false);
     addToast({
@@ -68,8 +75,8 @@ export function LandingPage() {
             </header>
 
             <div className="container mx-auto px-4 py-20 text-center text-white">
-              <h1 className="text-5xl font-bold mb-6">Discover the Flavors of East Africa</h1>
-              <p className="text-xl mb-8">Explore, cook, and share authentic East African recipes</p>
+              <h1 className="text-5xl font-bold mb-6">Discover the Flavors of Kenya</h1>
+              <p className="text-xl mb-8">Explore, cook, and share authentic Kenyan recipes</p>
               <Button size="lg" onClick={openAuth} className="bg-green-600 hover:bg-green-700 text-white">
                 Get Started
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -93,9 +100,9 @@ export function LandingPage() {
         <AuthDialog 
           isOpen={isAuthOpen} 
           onOpenChange={setIsAuthOpen} 
-          onSignUp={handleSignUp}
-          onLogin={handleLogin}
-          onGoogleLogin={handleGoogleLogin}
+          onSignUp={handleAuthSuccess}
+          onLogin={handleAuthSuccess}
+          onGoogleLogin={handleAuthSuccess}
         />
 
         {toasts.map((toast, index) => (

@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-//import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 interface LoginProps {
   onSuccess: (userData: { username: string; email: string }) => void;
+  onSwitchToSignUp: () => void;
 }
 
-export function Login({ onSuccess }: LoginProps) {
+export function Login({ onSuccess, onSwitchToSignUp }: LoginProps) {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,42 +24,43 @@ export function Login({ onSuccess }: LoginProps) {
       });
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('userId', response.data.userId);
-      onSuccess({ username: response.data.username, email }); // Pass user data to onSuccess
+      onSuccess({ username: response.data.username, email });
+      router.push('/dashboard'); // Redirect to dashboard after successful login
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.error('Login error:', error.response?.data);
-        // You can also display this error to the user
-        // setErrorMessage(error.response?.data.message || 'An error occurred during login');
-      } else {
-        console.error('An unexpected error occurred:', error);
-      }
+      console.error('Login error:', error);
+      setError('Login failed. Please check your credentials and try again.');
     }
   };
 
   return (
-    <Card>
+    <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>Login</CardTitle>
+        <CardTitle className="text-2xl font-bold">Login</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleLogin}>
+        <form onSubmit={handleLogin} className="space-y-4">
           <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 mb-2 border rounded"
+            className="w-full p-2 border rounded"
+            required
           />
           <input
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full p-2 mb-4 border rounded"
+            className="w-full p-2 border rounded"
+            required
           />
-          <Button type="submit">Login</Button>
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+          <Button type="submit" className="w-full bg-black text-white">Login</Button>
         </form>
-
+        <p className="text-center mt-4">
+          Don't have an account? <button onClick={onSwitchToSignUp} className="text-blue-500">Sign up</button>
+        </p>
       </CardContent>
     </Card>
   );

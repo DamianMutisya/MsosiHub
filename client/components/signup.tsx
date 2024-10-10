@@ -1,20 +1,32 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
+import { useRouter } from 'next/navigation';
 
 interface SignUpProps {
   onSuccess: (userData: { username: string; email: string }) => void;
+  onSwitchToLogin: () => void; // Add this prop
 }
 
-export function SignUp({ onSuccess }: SignUpProps) {
+export function SignUp({ onSuccess, onSwitchToLogin }: SignUpProps) {
+  const router = useRouter();
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
+    if (password.length < 8) {
+      setError('Password must be at least 8 characters long.');
+      return;
+    }
+
     try {
       const response = await axios.post('http://localhost:5000/api/users/signup', {
         username,
@@ -23,6 +35,7 @@ export function SignUp({ onSuccess }: SignUpProps) {
       });
       console.log('User registered:', response.data);
       onSuccess({ username, email });
+      router.push('/dashboard'); // Redirect to dashboard after successful sign-up
     } catch (error) {
       console.error('Registration error:', error);
       setError('Registration failed. Please try again.');
@@ -30,48 +43,55 @@ export function SignUp({ onSuccess }: SignUpProps) {
   };
 
   return (
-    <Card>
+    <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>Sign Up</CardTitle>
+        <CardTitle className="text-2xl font-bold">Sign Up</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSignUp} className="space-y-4">
           <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
             <input
               type="text"
-              id="username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+              placeholder="Username"
+              className="w-full p-2 border rounded"
               required
             />
           </div>
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
             <input
               type="email"
-              id="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+              placeholder="Email"
+              className="w-full p-2 border rounded"
               required
             />
           </div>
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+          <div className="relative">
             <input
-              type="password"
-              id="password"
+              type={showPassword ? "text" : "password"}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
+              placeholder="Password"
+              className="w-full p-2 border rounded pr-10"
               required
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute inset-y-0 right-0 pr-3 flex items-center"
+            >
+              {showPassword ? <EyeOff className="h-5 w-5 text-gray-400" /> : <Eye className="h-5 w-5 text-gray-400" />}
+            </button>
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
-          <Button type="submit" className="w-full">Sign Up</Button>
+          <Button type="submit" className="w-full bg-black text-white">Sign Up</Button>
         </form>
+        <p className="text-center mt-4">
+          Already have an account? <button onClick={onSwitchToLogin} className="text-blue-500">Log in</button>
+        </p>
       </CardContent>
     </Card>
   );

@@ -156,7 +156,7 @@ export function EnhancedKenyanRecipeExplorerComponent() {
                 alt="Description of the image"
                 width={500} // Adjust based on your image size
                 height={300} // Adjust based on your image size
-                layout="responsive"
+                style={{ objectFit: 'cover' }}
               />
               <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white rounded-lg">
                 <h1 className="text-4xl font-bold mb-4">Discover the Flavors of Kenya</h1>
@@ -191,7 +191,7 @@ export function EnhancedKenyanRecipeExplorerComponent() {
                 <RecipeCard
                   title="Ugali na Sukuma Wiki"
                   description="Cornmeal staple served with sautéed collard greens."
-                  image="images/ugalisukuma.jpg"
+                  image="/images/ugalisukuma.jpg"
                   rating={4.2}
                   time="30 min"
                   difficulty="Easy"
@@ -199,7 +199,7 @@ export function EnhancedKenyanRecipeExplorerComponent() {
                 <RecipeCard
                   title="Kenyan Pilau"
                   description="Spiced rice dish with meat and aromatic spices."
-                  image="images/kenyapilau.jpg"
+                  image="/images/kenyapilau.jpg"
                   rating={4.7}
                   time="60 min"
                   difficulty="Medium"
@@ -360,7 +360,7 @@ function RecipeCard({ title, description, image, rating, time, difficulty }: {
           alt={title} 
           width={300}
           height={200}
-          layout="responsive"
+          style={{ objectFit: 'cover' }}
         />
       </CardHeader>
       <CardContent className="p-4">
