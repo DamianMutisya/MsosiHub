@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { AuthDialog } from './authdialog';
 import Image from 'next/image';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { LoginResponse } from '../types/types';
 
 export function LandingPage() {
   const router = useRouter();
@@ -22,33 +23,31 @@ export function LandingPage() {
     }, 3000);
   };
 
-  const handleAuthSuccess = (userData: { username: string; email: string }) => {
-    // Close the auth dialog if it's open
+  const handleAuthSuccess = (userData: LoginResponse) => {
     setIsAuthOpen(false);
-    // Add any other necessary state updates or side effects
     router.push('/dashboard');
   };
 
-  const handleSignUp = (userData: { username: string; email: string }) => {
+  const handleSignUp = (userData: LoginResponse) => {
     setIsAuthOpen(false);
     addToast({
       title: "Sign Up Successful",
       description: `Welcome to MsosiHub, ${userData.username}!`,
     });
-    router.push(`/dashboard?name=${encodeURIComponent(userData.username)}&email=${encodeURIComponent(userData.email)}`);
+    router.push('/dashboard');
   };
 
-  const handleLogin = (userData: { username: string; email: string }) => {
+  const handleLogin = (userData: LoginResponse) => {
     setIsAuthOpen(false);
     addToast({
       title: "Login Successful",
       description: `Welcome back to MsosiHub, ${userData.username}!`,
     });
-    router.push(`/dashboard?name=${encodeURIComponent(userData.username)}&email=${encodeURIComponent(userData.email)}`);
+    router.push('/dashboard');
   };
 
-  const handleGoogleLogin = () => {
-    handleLogin({ username: "John Doe", email: "john.doe@example.com" });
+  const handleGoogleLogin = (userData: LoginResponse) => {
+    handleLogin(userData);
   };
 
   const openAuth = () => {

@@ -1,22 +1,24 @@
+'use client'
+
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Eye, EyeOff } from 'lucide-react';
-import axios from 'axios';
-import { useRouter } from 'next/navigation';
+import { LoginResponse } from '../types/types';
+import { useAuth } from '../context/AuthContext';
 
 interface SignUpProps {
-  onSuccess: (userData: { username: string; email: string }) => void;
-  onSwitchToLogin: () => void; // Add this prop
+  onSwitchToLogin: () => void;
+  onSignUp: (userData: LoginResponse) => void;
 }
 
-export function SignUp({ onSuccess, onSwitchToLogin }: SignUpProps) {
-  const router = useRouter();
+export function SignUp({ onSwitchToLogin, onSignUp }: SignUpProps) {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { signup } = useAuth();
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,16 +30,10 @@ export function SignUp({ onSuccess, onSwitchToLogin }: SignUpProps) {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/users/signup', {
-        username,
-        email,
-        password
-      });
-      console.log('User registered:', response.data);
-      onSuccess({ username, email });
-      router.push('/dashboard'); // Redirect to dashboard after successful sign-up
-    } catch (error) {
-      console.error('Registration error:', error);
+      const userData = await signup(username, email, password);
+      onSignUp(userData);
+    } catch (error: any) {
+      console.error('Signup error:', error.response?.data || error.message);
       setError('Registration failed. Please try again.');
     }
   };

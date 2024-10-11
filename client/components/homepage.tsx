@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
@@ -18,6 +18,8 @@ import Image from 'next/image';
 import { Facebook, Youtube } from 'lucide-react'
 import { Book, Users, Lightbulb, UserPlus } from 'lucide-react'
 import { CategoryRecipeCard } from './CategoryRecipeCard';
+import { UserMenu } from './UserMenu';
+import { SearchComponent } from './SearchComponent';
 
 
 
@@ -52,25 +54,96 @@ type RecipeDetail = {
   onError: (error: Error) => void;
 }*/
 
+interface User {
+  username?: string;
+  email?: string;
+  userId?: string;
+}
+
+interface LoginResponse extends User {
+  token: string;
+}
+
 export function EnhancedKenyanRecipeExplorerComponent() {
 
   const [selectedCategory] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [searchResults, setSearchResults] = useState<[]>([]);
+  const [searchResults, setSearchResults] = useState<Recipe[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [recommendations,] = useState<Recipe[]>([]);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetchUserData(token);
+    }
+  }, []);
+
+  const fetchUserData = async (token: string) => {
+    try {
+      const response = await axios.get('http://localhost:5000/api/users/user-data', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUser(response.data);
+    } catch (error) {
+      console.error('Error fetching user data:', error);
+    }
+  };
+
+  const handleLogin = (userData: LoginResponse) => {
+    localStorage.setItem('token', userData.token);
+    setUser({
+      username: userData.username,
+      email: userData.email,
+      userId: userData.userId
+    });
+  };
+
+  const handleSignup = (userData: LoginResponse) => {
+    localStorage.setItem('token', userData.token);
+    setUser({
+      username: userData.username,
+      email: userData.email,
+      userId: userData.userId
+    });
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setUser(null);
+  };
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError(null);
     try {
-      const response = await axios.get(`http://localhost:5000/api/recipes/${encodeURIComponent(searchTerm)}`);
+      console.log('Sending search request for:', searchTerm);
+      const response = await axios.get(`http://localhost:5000/api/recipes/search`, {
+        params: { q: searchTerm }
+      });
+      console.log('Search response:', response.data);
       setSearchResults(response.data);
       setIsModalOpen(true);
     } catch (error) {
       console.error('Error searching for recipes:', error);
+      if (axios.isAxiosError(error)) {
+        if (error.response?.status === 404) {
+          setError('No recipes found matching your search. Please try a different term.');
+        } else {
+          setError(`An error occurred while searching: ${error.response?.data?.message || error.message}`);
+        }
+      } else {
+        setError('An unexpected error occurred. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -99,6 +172,10 @@ export function EnhancedKenyanRecipeExplorerComponent() {
 
 
   const quickFilters = ['']
+
+  const handleSearchResults = (results: Recipe[]) => {
+    setSearchResults(results);
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -134,156 +211,154 @@ export function EnhancedKenyanRecipeExplorerComponent() {
                   LEARN
                 </TabsTrigger>
               </TabsList>
-              <div className="flex items-center space-x-4">
-                <button className="bg-orange-100 p-2 rounded-md">
-                  <Search className="w-5 h-5 text-orange-500" />
-                </button>
-                <Button className="bg-green-600 hover:bg-green-700 text-white font-medium px-4 py-2 rounded-full transition-colors duration-200 flex items-center">
-                  <UserPlus className="w-4 h-4 mr-2" />
-                  Create Account
-                </Button>
-              </div>
+              <UserMenu user={user || undefined} onLogout={handleLogout} />
             </div>
           </div>
         </header>
 
         {/* Main content */}
-        <main className="flex-grow container mx-auto px-4 py-8">
-          <TabsContent value="discover">
-            <div className="mb-8 relative">
-              <Image
-                src="/images/kenya.avif"
-                alt="Description of the image"
-                width={500} // Adjust based on your image size
-                height={300} // Adjust based on your image size
-                style={{ objectFit: 'cover' }}
-              />
-              <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white rounded-lg">
-                <h1 className="text-4xl font-bold mb-4">Discover the Flavors of Kenya</h1>
-                <form onSubmit={handleSearch} className="w-full max-w-md">
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="Search Kenyan recipes..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-10 pr-4 py-2 rounded-full border-2 border-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-                    <Button type="submit" className="absolute right-2 top-1/2 transform -translate-y-1/2 rounded-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white">
-                      Search
-                    </Button>
-                  </div>
-                </form>
-              </div>
-            </div>
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold mb-4">Featured Recipes</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <RecipeCard
-                  title="Nyama Choma"
-                  description="Grilled meat, typically goat or beef, seasoned with simple spices."
-                  image="/images/nyamachoma.jpg"
-                  rating={4.5}
-                  time="45 min"
-                  difficulty="Medium"
-                />
-                <RecipeCard
-                  title="Ugali na Sukuma Wiki"
-                  description="Cornmeal staple served with sautéed collard greens."
-                  image="/images/ugalisukuma.jpg"
-                  rating={4.2}
-                  time="30 min"
-                  difficulty="Easy"
-                />
-                <RecipeCard
-                  title="Kenyan Pilau"
-                  description="Spiced rice dish with meat and aromatic spices."
-                  image="/images/kenyapilau.jpg"
-                  rating={4.7}
-                  time="60 min"
-                  difficulty="Medium"
-                />
-              </div>
-            </div>
+        <main className="flex-grow bg-gray-100">
+          <div className="container mx-auto px-4 py-8">
+            <SearchComponent onSearchResults={handleSearchResults} />
             
-            <div style={{ marginBottom: '20px' }}>
-              <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '10px' }}></h2>
-              <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                {quickFilters.map((filter) => (
-                  <button
-                    key={filter}
-                    style={{
-                      padding: '5px 10px',
-                      margin: '2px',
-                      border: '1px solid #ccc',
-                      borderRadius: '15px',
-                      cursor: 'pointer',
-                      backgroundColor: '#f0f0f0',
-                    }}
-                  >
-                    {filter}
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recipes.map((recipe) => (
-                <CategoryRecipeCard
-                  key={recipe._id}  // Changed from 'id' to '_id'
-                  recipe={{
-                    _id: recipe._id,
-                    recipe_name: recipe.recipe_name,
-                    image_url: recipe.image_url,
-                    averageRating: recipe.averageRating,
-                    cook_time: recipe.cook_time,
-                    difficulty: recipe.difficulty,
-                    // Map any other fields you need
-                  }}
-                />
-              ))}
-            </div>
-            {recipes.length > 0 && (
-              <div className="mt-8 text-center">
-                <Button onClick={loadMoreRecipes} disabled={loading}>
-                  {loading ? 'Loading...' : 'Load More'}
-                </Button>
-              </div>
-            )}
-            {recommendations.length > 0 && (
-              <div className="mt-12">
-                <h2 className="text-2xl font-bold mb-4">You might also like</h2>
+            {/* Rest of your content */}
+            {searchResults.length > 0 && (
+              <div className="mt-8">
+                <h2 className="text-2xl font-bold mb-4">Search Results</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {recommendations.map((recipe) => (
+                  {searchResults.map((recipe) => (
                     <CategoryRecipeCard
                       key={recipe._id}
-                      recipe={{
-                        _id: recipe._id,
-                        recipe_name: recipe.recipe_name,
-                        image_url: recipe.image_url,
-                        averageRating: recipe.averageRating,
-                        cook_time: recipe.cook_time,
-                        difficulty: recipe.difficulty,
-                        // Map any other fields you need
-                      }}
+                      recipe={recipe}
                     />
                   ))}
                 </div>
               </div>
             )}
-          </TabsContent>
-          <TabsContent value="meal-planner">
-            <KenyanMealPlanner />
-          </TabsContent>
-          <TabsContent value="my-recipes">
-            <MyRecipes />
-          </TabsContent>
-          <TabsContent value="community">
-            <CommunityAndHelpSection />
-          </TabsContent>
-          <TabsContent value="learn">
-            <Learn />
-          </TabsContent>
+
+            <TabsContent value="discover">
+              <div className="mb-8 relative h-[300px]">
+                <div style={{ position: 'relative', width: '100%', height: '300px' }}>
+                  <Image
+                    src="/images/kenya.avif"
+                    fill
+                    style={{ objectFit: 'cover' }}
+                    alt="Kenya"
+                  />
+                </div>
+                <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white rounded-lg">
+                  <h1 className="text-4xl font-bold mb-4">Discover the Flavors of Kenya</h1>
+                  <SearchComponent onSearchResults={handleSearchResults} />
+                </div>
+              </div>
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold mb-4">Featured Recipes</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <RecipeCard
+                    title="Nyama Choma"
+                    description="Grilled meat, typically goat or beef, seasoned with simple spices."
+                    image="/images/nyamachoma.jpg"
+                    rating={4.5}
+                    time="45 min"
+                    difficulty="Medium"
+                  />
+                  <RecipeCard
+                    title="Ugali na Sukuma Wiki"
+                    description="Cornmeal staple served with sautéed collard greens."
+                    image="/images/ugalisukuma.jpg"
+                    rating={4.2}
+                    time="30 min"
+                    difficulty="Easy"
+                  />
+                  <RecipeCard
+                    title="Kenyan Pilau"
+                    description="Spiced rice dish with meat and aromatic spices."
+                    image="/images/kenyapilau.jpg"
+                    rating={4.7}
+                    time="60 min"
+                    difficulty="Medium"
+                  />
+                </div>
+              </div>
+              
+              <div style={{ marginBottom: '20px' }}>
+                <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '10px' }}></h2>
+                <div style={{ display: 'flex', flexWrap: 'wrap' }}>
+                  {quickFilters.map((filter) => (
+                    <button
+                      key={filter}
+                      style={{
+                        padding: '5px 10px',
+                        margin: '2px',
+                        border: '1px solid #ccc',
+                        borderRadius: '15px',
+                        cursor: 'pointer',
+                        backgroundColor: '#f0f0f0',
+                      }}
+                    >
+                      {filter}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {recipes.map((recipe) => (
+                  <CategoryRecipeCard
+                    key={recipe._id}  // Changed from 'id' to '_id'
+                    recipe={{
+                      _id: recipe._id,
+                      recipe_name: recipe.recipe_name,
+                      image_url: recipe.image_url,
+                      averageRating: recipe.averageRating,
+                      cook_time: recipe.cook_time,
+                      difficulty: recipe.difficulty,
+                      // Map any other fields you need
+                    }}
+                  />
+                ))}
+              </div>
+              {recipes.length > 0 && (
+                <div className="mt-8 text-center">
+                  <Button onClick={loadMoreRecipes} disabled={loading}>
+                    {loading ? 'Loading...' : 'Load More'}
+                  </Button>
+                </div>
+              )}
+              {recommendations.length > 0 && (
+                <div className="mt-12">
+                  <h2 className="text-2xl font-bold mb-4">You might also like</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {recommendations.map((recipe) => (
+                      <CategoryRecipeCard
+                        key={recipe._id}
+                        recipe={{
+                          _id: recipe._id,
+                          recipe_name: recipe.recipe_name,
+                          image_url: recipe.image_url,
+                          averageRating: recipe.averageRating,
+                          cook_time: recipe.cook_time,
+                          difficulty: recipe.difficulty,
+                          // Map any other fields you need
+                        }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+            </TabsContent>
+            <TabsContent value="meal-planner">
+              <KenyanMealPlanner />
+            </TabsContent>
+            <TabsContent value="my-recipes">
+              <MyRecipes />
+            </TabsContent>
+            <TabsContent value="community">
+              <CommunityAndHelpSection />
+            </TabsContent>
+            <TabsContent value="learn">
+              <Learn />
+            </TabsContent>
+          </div>
         </main>
       </Tabs>
 

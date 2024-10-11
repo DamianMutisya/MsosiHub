@@ -16,9 +16,9 @@ router.post('/signup', async (req, res) => {
     const { username, email, password } = req.body;
     
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(400).json({ message: 'Username or email already exists' });
     }
     
     // Hash the password
@@ -28,9 +28,17 @@ router.post('/signup', async (req, res) => {
     const user = new User({ username, email, password: hashedPassword });
     await user.save();
     
-    res.status(201).json({ message: 'User created successfully' });
+    // After saving the user
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    res.status(201).json({ message: 'User created successfully', token, userId: user._id, username: user.username });
   } catch (error) {
-    res.status(400).json({ message: 'Error creating user', error: error.message });
+    if (error.code === 11000) {
+      // This error code indicates a duplicate key error
+      const field = Object.keys(error.keyPattern)[0];
+      res.status(400).json({ message: `${field} already exists` });
+    } else {
+      res.status(400).json({ message: 'Error creating user', error: error.message });
+    }
   }
 });
 
@@ -61,7 +69,7 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
     
     console.log('Login successful for email:', email);
-    res.json({ token, userId: user._id, username: user.username });
+    res.json({ message: 'Login successful', token, userId: user._id, username: user.username });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -167,8 +175,11 @@ const authMiddleware = (req, res, next) => {
 
 router.get('/user-data', authMiddleware, async (req, res) => {
   try {
-    const userData = await UserData.find({ userId: req.user.userId });
-    res.json(userData);
+    const user = await User.findById(req.user.userId).select('-password');
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user);
   } catch (error) {
     console.error('Error fetching user data:', error);
     res.status(500).json({ message: 'Server error' });

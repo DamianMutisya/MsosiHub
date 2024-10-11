@@ -1,24 +1,23 @@
+'use client'
+
 import React from 'react';
 import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { LoginResponse } from '../types/types';
+import { useAuth } from '../context/AuthContext';
 
 interface GoogleAuthProps {
-  onSuccess: (userData: { username: string; email: string }) => void;
+  onGoogleLogin: (userData: LoginResponse) => void;
 }
 
-export function GoogleAuth({ onSuccess }: GoogleAuthProps) {
-  const router = useRouter();
+export function GoogleAuth({ onGoogleLogin }: GoogleAuthProps) {
+  const { googleLogin } = useAuth();
 
   const handleGoogleResponse = async (credentialResponse: CredentialResponse) => {
     try {
-      const { data } = await axios.post('http://localhost:5000/api/users/google-login', {
-        token: credentialResponse.credential,
-      });
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('userId', data.userId);
-      onSuccess({ username: data.username, email: data.email });
-      router.push('/dashboard'); // Redirect to dashboard after successful Google sign-in
+      const userData = await googleLogin(credentialResponse.credential || '');
+      onGoogleLogin(userData);
     } catch (error) {
       console.error('Google login error:', error);
     }

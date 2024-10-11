@@ -1,7 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const axios = require('axios');
 require('dotenv').config();
 const session = require('express-session');
 const passport = require('passport');
@@ -77,17 +76,21 @@ app.get('/api/recipes', async (req, res) => {
 app.get('/api/recipes/:searchTerm', async (req, res) => {
   try {
     const searchTerm = req.params.searchTerm;
-    const recipe = await Recipe.findOne({ 
-      recipe_name: { $regex: new RegExp(searchTerm, 'i') } 
+    const recipes = await Recipe.find({ 
+      $or: [
+        { recipe_name: { $regex: new RegExp(searchTerm, 'i') } },
+        { ingredients: { $regex: new RegExp(searchTerm, 'i') } },
+        { instructions: { $regex: new RegExp(searchTerm, 'i') } }
+      ]
     });
-    if (recipe) {
-      res.json(recipe);
+    if (recipes.length > 0) {
+      res.json(recipes);
     } else {
-      res.status(404).json({ message: 'Recipe not found' });
+      res.status(404).json({ message: 'No recipes found matching the search term' });
     }
   } catch (error) {
-    console.error('Error fetching recipe:', error);
-    res.status(500).json({ message: 'Error fetching recipe' });
+    console.error('Error searching for recipes:', error);
+    res.status(500).json({ message: 'Error searching for recipes', error: error.message });
   }
 });
 
@@ -171,6 +174,16 @@ app.use('/api/users', userRoutes);
 
 const authRoutes = require('./routes/auth');
 app.use(authRoutes);
+
+app.use((req, res, next) => {
+  console.log(`Received ${req.method} request for ${req.url}`);
+  next();
+});
+
+// Add a test route directly in server.js
+app.get('/test', (req, res) => {
+  res.json({ message: 'Server is working' });
+});
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);

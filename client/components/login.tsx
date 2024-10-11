@@ -1,33 +1,30 @@
+'use client'
+
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { LoginResponse } from '../types/types';
+import { useAuth } from '../context/AuthContext';
 
 interface LoginProps {
-  onSuccess: (userData: { username: string; email: string }) => void;
   onSwitchToSignUp: () => void;
+  onLogin: (userData: LoginResponse) => void;
 }
 
-export function Login({ onSuccess, onSwitchToSignUp }: LoginProps) {
-  const router = useRouter();
+export function Login({ onSwitchToSignUp, onLogin }: LoginProps) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const { login } = useAuth();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/users/login', {
-        email,
-        password,
-      });
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('userId', response.data.userId);
-      onSuccess({ username: response.data.username, email });
-      router.push('/dashboard'); // Redirect to dashboard after successful login
+      const userData = await login(email, password);
+      onLogin(userData);
     } catch (error) {
-      console.error('Login error:', error);
       setError('Login failed. Please check your credentials and try again.');
     }
   };

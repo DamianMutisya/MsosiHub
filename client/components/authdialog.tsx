@@ -1,16 +1,19 @@
+'use client'
+
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Login } from './login';
 import { SignUp } from './signup';
 import { GoogleAuth } from './GoogleAuth';
-import Image from 'next/image';
+import { LoginResponse } from '@/types/types';
+
 
 interface AuthDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
-  onSignUp: (userData: { username: string; email: string }) => void;
-  onLogin: (userData: { username: string; email: string }) => void;
-  onGoogleLogin: (userData: { username: string; email: string }) => void;
+  onSignUp: (userData: LoginResponse) => void;
+  onLogin: (userData: LoginResponse) => void;
+  onGoogleLogin: (userData: LoginResponse) => void;
 }
 
 export function AuthDialog({
@@ -31,11 +34,11 @@ export function AuthDialog({
         <DialogHeader>
           <DialogTitle>Welcome to MsosiHub</DialogTitle>
         </DialogHeader>
-        <GoogleAuth onSuccess={onGoogleLogin} />
+        <GoogleAuth onGoogleLogin={onGoogleLogin} />
         {isSignUp ? (
-          <SignUp onSuccess={onSignUp} onSwitchToLogin={handleSwitchToLogin} />
+          <SignUp onSwitchToLogin={handleSwitchToLogin} onSignUp={onSignUp} />
         ) : (
-          <Login onSuccess={onLogin} onSwitchToSignUp={handleSwitchToSignUp} />
+          <Login onSwitchToSignUp={handleSwitchToSignUp} onLogin={onLogin} />
         )}
       </DialogContent>
     </Dialog>

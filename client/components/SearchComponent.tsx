@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
+import { Search } from 'lucide-react';
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import axios from 'axios';
-import { RecipeDetailsModal, RecipeDetail } from './RecipeDetailsModal'; // Import RecipeDetail
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
-// Use the imported RecipeDetail type
-type SearchResult = RecipeDetail;
+interface Recipe {
+  _id: string;
+  recipe_name: string;
+  // Add other fields as necessary
+}
 
 interface SearchComponentProps {
-  onSearchResults: (results: SearchResult[]) => void;
+  onSearchResults: (results: Recipe[]) => void;
 }
 
 export function SearchComponent({ onSearchResults }: SearchComponentProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,54 +23,42 @@ export function SearchComponent({ onSearchResults }: SearchComponentProps) {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
-    
-    try {
-      const response = await axios.get<SearchResult[]>(`http://localhost:5000/api/recipes/search`, {
-        params: { q: searchTerm }
-      });
-      
-      // Add _id if it's missing
-      const resultsWithId = response.data.map(result => ({
-        ...result,
-        _id: result._id || `temp-${Math.random().toString(36).substr(2, 9)}`
-      }));
 
-      setSearchResults(resultsWithId);
-      onSearchResults(resultsWithId);
-      setIsModalOpen(true);
-    } catch (error) {
-      console.error('Error searching for recipes:', error);
-      if (axios.isAxiosError(error) && error.response) {
-        setError(error.response.data.message || 'An error occurred while searching for recipes');
+    try {
+      const response = await axios.get<Recipe[]>(`http://localhost:5000/api/recipes/${encodeURIComponent(searchTerm)}`);
+      if (Array.isArray(response.data)) {
+        onSearchResults(response.data);
       } else {
-        setError('An unexpected error occurred');
+        onSearchResults([response.data]);
       }
+    } catch (error) {
+      setError('An error occurred while searching for recipes. Please try again.');
+      console.error('Search error:', error);
+      onSearchResults([]);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <>
-      <form onSubmit={handleSearch} className="w-full max-w-md">
-        <div className="relative">
-          <input
-            type="text"
-            placeholder="Search Kenyan recipes..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-full border-2 border-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
-            disabled={isLoading}
-          />
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-          <Button 
-            type="submit" 
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 rounded-full px-4 py-2 bg-green-600 hover:bg-green-700 text-white"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Searching...' : 'Search'}
-          </Button>
-        </div>
+    <div className="w-full max-w-md mx-auto mt-8 mb-8">
+      <form onSubmit={handleSearch} className="relative">
+        <input
+          type="text"
+          placeholder="Search Kenyan recipes..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="w-full pl-12 pr-20 py-3 rounded-full border-2 border-orange-400 focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white text-gray-800 shadow-lg"
+          disabled={isLoading}
+        />
+        <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-orange-400" size={20} />
+        <Button 
+          type="submit" 
+          className="absolute right-2 top-1/2 transform -translate-y-1/2 rounded-full px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold transition-colors duration-300"
+          disabled={isLoading}
+        >
+          {isLoading ? 'Searching...' : 'Search'}
+        </Button>
       </form>
 
       {error && (
@@ -79,13 +67,6 @@ export function SearchComponent({ onSearchResults }: SearchComponentProps) {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-
-      <RecipeDetailsModal
-        recipes={searchResults}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onError={(error) => setError(error.message)}
-      />
-    </>
+    </div>
   );
 }
