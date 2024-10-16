@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { Search, Twitter, Instagram, MessageSquare, Star, Clock, ChefHat, Calendar, Heart,} from "lucide-react"
+import { Twitter, Instagram, MessageSquare, Star, Clock, ChefHat, Calendar, Heart,} from "lucide-react"
 import { RecipeDetailsModal } from './RecipeDetailsModal';
 import axios from 'axios';
 import KenyanMealPlanner from './KenyanMealPlanner';
@@ -14,7 +14,7 @@ import { MyRecipes } from './MyRecipes'
 import CommunityAndHelpSection from './CommunityAndHelpSection';
 import { Learn } from './learn'; // Adjust the path as necessary
 import React from 'react';
-import Image from 'next/image';
+import Image from "next/image";
 import { Facebook, Youtube } from 'lucide-react'
 import { Book, Users, Lightbulb, UserPlus } from 'lucide-react'
 import { CategoryRecipeCard } from './CategoryRecipeCard';
@@ -46,13 +46,6 @@ type RecipeDetail = {
   // Add other properties as needed
 };
 
-// At the top of your file, add or update this interface
-/*interface RecipeDetailsProps {
-  recipes: RecipeDetail[];
-  isOpen: boolean;
-  onClose: () => void;
-  onError: (error: Error) => void;
-}*/
 
 interface User {
   username?: string;
@@ -60,14 +53,10 @@ interface User {
   userId?: string;
 }
 
-interface LoginResponse extends User {
-  token: string;
-}
 
 export function EnhancedKenyanRecipeExplorerComponent() {
 
   const [selectedCategory] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<Recipe[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -75,8 +64,7 @@ export function EnhancedKenyanRecipeExplorerComponent() {
   const [loading, setLoading] = useState(false);
   const [recommendations,] = useState<Recipe[]>([]);
   const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -96,58 +84,13 @@ export function EnhancedKenyanRecipeExplorerComponent() {
     }
   };
 
-  const handleLogin = (userData: LoginResponse) => {
-    localStorage.setItem('token', userData.token);
-    setUser({
-      username: userData.username,
-      email: userData.email,
-      userId: userData.userId
-    });
-  };
 
-  const handleSignup = (userData: LoginResponse) => {
-    localStorage.setItem('token', userData.token);
-    setUser({
-      username: userData.username,
-      email: userData.email,
-      userId: userData.userId
-    });
-  };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     setUser(null);
   };
 
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
-    try {
-      console.log('Sending search request for:', searchTerm);
-      const response = await axios.get(`http://localhost:5000/api/recipes/search`, {
-        params: { q: searchTerm }
-      });
-      console.log('Search response:', response.data);
-      setSearchResults(response.data);
-      setIsModalOpen(true);
-    } catch (error) {
-      console.error('Error searching for recipes:', error);
-      if (axios.isAxiosError(error)) {
-        if (error.response?.status === 404) {
-          setError('No recipes found matching your search. Please try a different term.');
-        } else {
-          setError(`An error occurred while searching: ${error.response?.data?.message || error.message}`);
-        }
-      } else {
-        setError('An unexpected error occurred. Please try again.');
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
   const loadMoreRecipes = async () => {
     if (loading) return;
@@ -168,13 +111,18 @@ export function EnhancedKenyanRecipeExplorerComponent() {
     }
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-
 
   const quickFilters = ['']
 
   const handleSearchResults = (results: Recipe[]) => {
+    console.log('Search results in homepage:', results);
     setSearchResults(results);
+    setIsModalOpen(true);
+  };
+
+  const handleError = (error: Error) => {
+    console.error('Error in RecipeDetailsModal:', error);
+    // You can add additional error handling here, such as showing a toast notification
   };
 
   return (
@@ -219,38 +167,24 @@ export function EnhancedKenyanRecipeExplorerComponent() {
         {/* Main content */}
         <main className="flex-grow bg-gray-100">
           <div className="container mx-auto px-4 py-8">
-            <SearchComponent onSearchResults={handleSearchResults} />
-            
-            {/* Rest of your content */}
-            {searchResults.length > 0 && (
-              <div className="mt-8">
-                <h2 className="text-2xl font-bold mb-4">Search Results</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {searchResults.map((recipe) => (
-                    <CategoryRecipeCard
-                      key={recipe._id}
-                      recipe={recipe}
-                    />
-                  ))}
-                </div>
+            <div className="mb-8 relative h-[300px]">
+              <div style={{ position: 'relative', width: '100%', height: '300px' }}>
+                <Image
+                  src="/images/kenya.avif"
+                  alt="Kenya"
+                  sizes="100vw"
+                  style={{
+                    objectFit: 'cover',
+                  }}
+                  fill
+                />
               </div>
-            )}
-
+              <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-green-500 rounded-lg">
+                <h1 className="text-4xl font-bold mb-4">Discover the Flavors of Kenya</h1>
+                <SearchComponent onSearchResults={handleSearchResults} />
+              </div>
+            </div>
             <TabsContent value="discover">
-              <div className="mb-8 relative h-[300px]">
-                <div style={{ position: 'relative', width: '100%', height: '300px' }}>
-                  <Image
-                    src="/images/kenya.avif"
-                    fill
-                    style={{ objectFit: 'cover' }}
-                    alt="Kenya"
-                  />
-                </div>
-                <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white rounded-lg">
-                  <h1 className="text-4xl font-bold mb-4">Discover the Flavors of Kenya</h1>
-                  <SearchComponent onSearchResults={handleSearchResults} />
-                </div>
-              </div>
               <div className="mb-8">
                 <h2 className="text-2xl font-bold mb-4">Featured Recipes</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -399,7 +333,7 @@ export function EnhancedKenyanRecipeExplorerComponent() {
         recipes={searchResults}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onError={(error: Error) => console.error('Error fetching recipe details:', error)}
+        onError={handleError}
       />
     </div>
   );

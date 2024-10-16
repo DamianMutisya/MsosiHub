@@ -1,7 +1,7 @@
-import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 
 export interface RecipeDetailsProps {
   recipes: RecipeDetail[];
@@ -12,7 +12,7 @@ export interface RecipeDetailsProps {
 
 // Update the RecipeDetail type
 export type RecipeDetail = {
-  _id?: string; // Make this optional
+  _id: string; // Make this optional
   recipe_name: string;
   description?: string;
   ingredients?: string[];
@@ -20,65 +20,87 @@ export type RecipeDetail = {
   youtubeLink?: string;
 };
 
-export function RecipeDetailsModal({ recipes, isOpen, onClose }: RecipeDetailsProps) {
+export function RecipeDetailsModal({ recipes, isOpen, onClose, onError }: RecipeDetailsProps) {
+  const [selectedRecipe, setSelectedRecipe] = useState<RecipeDetail | null>(null);
+
   if (!isOpen) return null;
 
-  console.log('RecipeDetailsModal rendered with recipes:', recipes);
+  const handleRecipeClick = (recipe: RecipeDetail) => {
+    setSelectedRecipe(recipe);
+  };
+
+  console.log('Recipe details:', recipes);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Recipe Details</DialogTitle>
+          <DialogTitle className="text-2xl font-bold">Recipe Details</DialogTitle>
+          <DialogDescription>
+            {recipes && recipes.length > 0 ? 'Click on a recipe to view details' : 'No recipes found'}
+          </DialogDescription>
         </DialogHeader>
         {recipes && recipes.length > 0 ? (
-          <Tabs defaultValue={recipes[0].recipe_name}>
-            <TabsList>
-              {recipes.map((recipe) => (
-                <TabsTrigger key={recipe._id} value={recipe.recipe_name}>
-                  {recipe.recipe_name}
-                </TabsTrigger>
-              ))}
-            </TabsList>
+          <div className="flex overflow-x-auto space-x-4 pb-4">
             {recipes.map((recipe) => (
-              <TabsContent key={recipe._id} value={recipe.recipe_name}>
-                <h3 className="text-lg font-semibold mb-2">{recipe.recipe_name}</h3>
-                {recipe.description && <p className="mb-4">{recipe.description}</p>}
-                {recipe.ingredients && recipe.ingredients.length > 0 && (
-                  <>
-                    <h4 className="font-medium mt-4 mb-2">Ingredients:</h4>
-                    <ul className="list-disc pl-5 mb-4">
-                      {recipe.ingredients.map((ingredient, index) => (
-                        <li key={index}>{ingredient}</li>
-                      ))}
-                    </ul>
-                  </>
-                )}
-                {recipe.instructions && recipe.instructions.length > 0 && (
-                  <>
-                    <h4 className="font-medium mt-4 mb-2">Instructions:</h4>
-                    <ol className="list-decimal pl-5 mb-4">
-                      {recipe.instructions.map((instruction, index) => (
-                        <li key={index}>{instruction}</li>
-                      ))}
-                    </ol>
-                  </>
-                )}
-                {recipe.youtubeLink && (
-                  <Button
-                    onClick={() => window.open(recipe.youtubeLink, '_blank')}
-                    className="mt-4"
-                  >
-                    Watch Video
-                  </Button>
-                )}
-              </TabsContent>
+              <div
+                key={recipe._id}
+                className="flex-shrink-0 cursor-pointer hover:bg-gray-100 p-2 rounded"
+                onClick={() => handleRecipeClick(recipe)}
+              >
+                <h3 className="font-semibold">{recipe.recipe_name}</h3>
+              </div>
             ))}
-          </Tabs>
+          </div>
         ) : (
           <p className="text-center py-4">No recipes found. Try a different search term.</p>
+        )}
+        {selectedRecipe && (
+          <div className="mt-4">
+            <h2 className="text-xl font-semibold mb-2">{selectedRecipe.recipe_name}</h2>
+            {selectedRecipe.description && <p className="mb-4">{selectedRecipe.description}</p>}
+            {selectedRecipe.ingredients && selectedRecipe.ingredients.length > 0 && (
+              <>
+                <h4 className="font-medium mt-4 mb-2">Ingredients:</h4>
+                <ul className="list-disc pl-5 mb-4">
+                  {selectedRecipe.ingredients.map((ingredient, index) => (
+                    <li key={index}>{ingredient}</li>
+                  ))}
+                </ul>
+              </>
+            )}
+            {selectedRecipe.instructions && selectedRecipe.instructions.length > 0 && (
+              <>
+                <h4 className="font-medium mt-4 mb-2">Instructions:</h4>
+                <ol className="list-decimal pl-5 mb-4">
+                  {selectedRecipe.instructions.map((instruction, index) => (
+                    <li key={index}>{instruction}</li>
+                  ))}
+                </ol>
+              </>
+            )}
+            {selectedRecipe.youtubeLink && (
+              <div className="mt-4">
+                <h4 className="font-medium mb-2">Video Tutorial:</h4>
+                <iframe
+                  width="100%"
+                  height="200"
+                  src={`https://www.youtube.com/embed/${selectedRecipe.youtubeLink}`}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              </div>
+            )}
+          </div>
         )}
       </DialogContent>
     </Dialog>
   );
+}
+
+function getYoutubeVideoId(url: string): string {
+  const regExp = /^.*(youtu.be\/|v\/u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  return (match && match[2].length === 11) ? match[2] : '';
 }

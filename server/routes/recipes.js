@@ -34,17 +34,21 @@ router.get('/search', async (req, res) => {
     console.log('Searching for:', q);
 
     const recipes = await Recipe.find({
-      $or: [
-        { recipe_name: { $regex: q, $options: 'i' } },
-        { ingredients: { $regex: q, $options: 'i' } },
-        { instructions: { $regex: q, $options: 'i' } }
-      ]
+      recipe_name: new RegExp(q, 'i')  // Match recipe names that contain the search term anywhere
     }).limit(20); // Limit to 20 results for performance
 
     console.log(`Found ${recipes.length} recipes matching "${q}"`);
     
     if (recipes.length > 0) {
-      res.json(recipes);
+      const recipesWithVideo = await Promise.all(
+        recipes.map(async (recipe) => {
+          const videoUrl = await fetchYouTubeVideo(recipe.recipe_name);
+          console.log('Video URL for', recipe.recipe_name, ':', videoUrl);
+          console.log('YouTube link for', recipe.recipe_name, ':', videoUrl);
+          return { ...recipe.toObject(), videoUrl };
+        })
+      );
+      res.json(recipesWithVideo);
     } else {
       res.status(404).json({ message: 'No recipes found matching the search term' });
     }

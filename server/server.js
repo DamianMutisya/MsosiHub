@@ -4,7 +4,8 @@ const cors = require('cors');
 require('dotenv').config();
 const session = require('express-session');
 const passport = require('passport');
-require('./config/passport'); // Ensure this is the correct path to your passport configuration
+require('./config/passport'); 
+const axios = require('axios');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -24,6 +25,9 @@ const Recipe = require('./models/Recipe');
 
 // Function to fetch YouTube video
 async function fetchYouTubeVideo(recipeName) {
+  console.log('Fetching YouTube video for:', recipeName);
+  console.log('YouTube API response:', response.data);
+  console.log('YouTube API Key:', process.env.YOUTUBE_API_KEY);
   try {
     const response = await axios.get('https://www.googleapis.com/youtube/v3/search', {
       params: {
@@ -188,3 +192,7 @@ app.get('/test', (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+module.exports = {
+  fetchYouTubeVideo
+};
