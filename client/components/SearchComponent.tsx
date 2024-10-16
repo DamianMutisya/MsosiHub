@@ -1,9 +1,6 @@
 import React, { useState } from 'react';
-import { Search } from 'lucide-react';
-import { Button } from "@/components/ui/button";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import axios from 'axios';
-import { Recipe } from '../types/recipe'; // Adjust the import path as necessary
+import { Recipe } from '../types/recipe';
 
 interface SearchComponentProps {
   onSearchResults: (results: Recipe[]) => void;
@@ -38,13 +35,13 @@ export function SearchComponent({ onSearchResults }: SearchComponentProps) {
   };
 
   return (
-    <form onSubmit={handleSearch} className="flex items-center">
+    <form onSubmit={handleSearch} className="flex items-center w-full">
       <input
         type="text"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         placeholder="Search for recipe names..."
-        className="flex-grow px-4 py-2 rounded-l-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500"
+        className="flex-grow px-4 py-2 rounded-l-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-green-500 text-gray-800 bg-white"
       />
       <button
         type="submit"
@@ -53,7 +50,7 @@ export function SearchComponent({ onSearchResults }: SearchComponentProps) {
       >
         {isLoading ? 'Searching...' : 'Search'}
       </button>
-      {error && <p className="text-red-500 mt-2">{error}</p>}
+      {error && <p className="text-red-500 mt-2 absolute">{error}</p>}
     </form>
   );
 }

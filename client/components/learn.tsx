@@ -99,6 +99,7 @@ export function Learn() {
                     alt={video.snippet.title} 
                     width={320} 
                     height={180} 
+                    unoptimized
                   />
                 </div>
               ))

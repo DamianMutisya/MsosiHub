@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
+const YOUTUBE_API_KEY = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY || 'AIzaSyAoySlDGPutWh9nnzMoKd07xhp3pxCYLYU';
 
 export interface RecipeDetailsProps {
   recipes: RecipeDetail[];
@@ -17,19 +17,50 @@ export type RecipeDetail = {
   description?: string;
   ingredients?: string[];
   instructions?: string[];
-  youtubeLink?: string;
 };
+
+interface YouTubeVideo {
+  id: { videoId: string };
+  snippet: { title: string };
+}
 
 export function RecipeDetailsModal({ recipes, isOpen, onClose, onError }: RecipeDetailsProps) {
   const [selectedRecipe, setSelectedRecipe] = useState<RecipeDetail | null>(null);
+  const [youtubeVideo, setYoutubeVideo] = useState<YouTubeVideo | null>(null);
 
-  if (!isOpen) return null;
+  useEffect(() => {
+    if (selectedRecipe) {
+      fetchYouTubeVideo(selectedRecipe.recipe_name);
+    }
+  }, [selectedRecipe]);
+
+  const fetchYouTubeVideo = async (recipeName: string) => {
+    try {
+      const response = await fetch(
+        `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(recipeName + ' recipe')}&key=${YOUTUBE_API_KEY}&maxResults=1`
+      );
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      if (data.items && data.items.length > 0) {
+        setYoutubeVideo(data.items[0]);
+      } else {
+        setYoutubeVideo(null);
+      }
+    } catch (error) {
+      console.error('Error fetching YouTube video:', error);
+      onError(error as Error);
+    }
+  };
 
   const handleRecipeClick = (recipe: RecipeDetail) => {
     setSelectedRecipe(recipe);
   };
 
-  console.log('Recipe details:', recipes);
+  if (!isOpen) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -79,16 +110,18 @@ export function RecipeDetailsModal({ recipes, isOpen, onClose, onError }: Recipe
                 </ol>
               </>
             )}
-            {selectedRecipe.youtubeLink && (
+            {youtubeVideo && (
               <div className="mt-4">
                 <h4 className="font-medium mb-2">Video Tutorial:</h4>
                 <iframe
                   width="100%"
-                  height="200"
-                  src={`https://www.youtube.com/embed/${selectedRecipe.youtubeLink}`}
+                  height="315"
+                  src={`https://www.youtube.com/embed/${youtubeVideo.id.videoId}`}
+                  title={youtubeVideo.snippet.title}
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
+                  className="rounded-lg shadow-lg"
                 ></iframe>
               </div>
             )}
@@ -97,10 +130,4 @@ export function RecipeDetailsModal({ recipes, isOpen, onClose, onError }: Recipe
       </DialogContent>
     </Dialog>
   );
-}
-
-function getYoutubeVideoId(url: string): string {
-  const regExp = /^.*(youtu.be\/|v\/u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-  const match = url.match(regExp);
-  return (match && match[2].length === 11) ? match[2] : '';
 }

@@ -167,24 +167,26 @@ export function EnhancedKenyanRecipeExplorerComponent() {
         {/* Main content */}
         <main className="flex-grow bg-gray-100">
           <div className="container mx-auto px-4 py-8">
-            <div className="mb-8 relative h-[300px]">
-              <div style={{ position: 'relative', width: '100%', height: '300px' }}>
-                <Image
-                  src="/images/kenya.avif"
-                  alt="Kenya"
-                  sizes="100vw"
-                  style={{
-                    objectFit: 'cover',
-                  }}
-                  fill
-                />
-              </div>
-              <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-green-500 rounded-lg">
-                <h1 className="text-4xl font-bold mb-4">Discover the Flavors of Kenya</h1>
-                <SearchComponent onSearchResults={handleSearchResults} />
-              </div>
-            </div>
             <TabsContent value="discover">
+              <div className="mb-8 relative">
+                <div className="relative h-[300px]">
+                  <Image
+                    src="/images/kenya.avif"
+                    alt="Kenya"
+                    sizes="100vw"
+                    style={{
+                      objectFit: 'cover',
+                    }}
+                    fill
+                  />
+                  <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white">
+                    <h1 className="text-4xl font-bold mb-4 text-white">Discover the Flavors of Kenya</h1>
+                    <div className="w-full max-w-md">
+                      <SearchComponent onSearchResults={handleSearchResults} />
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div className="mb-8">
                 <h2 className="text-2xl font-bold mb-4">Featured Recipes</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
