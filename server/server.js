@@ -149,22 +149,24 @@ app.post('/api/recipes', async (req, res) => {
 
 // New route for Edamam API requests
 app.get('/api/edamam-recipes', async (req, res) => {
-  const { query } = req.query;
-  const appId = process.env.EDAMAM_APP_ID;
-  const appKey = process.env.EDAMAM_APP_KEY;
+  const { searchTerm, from, to } = req.query;
+  const EDAMAM_APP_ID = process.env.EDAMAM_APP_ID;
+  const EDAMAM_APP_KEY = process.env.EDAMAM_APP_KEY;
 
   try {
     const response = await axios.get(`https://api.edamam.com/search`, {
       params: {
-        q: query,
-        app_id: appId,
-        app_key: appKey,
-      },
+        q: searchTerm,
+        app_id: EDAMAM_APP_ID,
+        app_key: EDAMAM_APP_KEY,
+        from,
+        to
+      }
     });
     res.json(response.data);
   } catch (error) {
     console.error('Error fetching recipes from Edamam:', error);
-    res.status(500).json({ message: 'Error fetching recipes from Edamam' });
+    res.status(500).json({ message: 'Error fetching recipes' });
   }
 });
 

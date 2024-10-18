@@ -10,16 +10,17 @@ import { Twitter, Instagram, MessageSquare, Star, Clock, ChefHat, Calendar, Hear
 import { RecipeDetailsModal } from './RecipeDetailsModal';
 import axios from 'axios';
 import KenyanMealPlanner from './KenyanMealPlanner';
-import { MyRecipes } from './MyRecipes'
+import { MyRecipes } from './GlobalRecipes'
 import CommunityAndHelpSection from './CommunityAndHelpSection';
 import { Learn } from './learn'; // Adjust the path as necessary
 import React from 'react';
 import Image from "next/image";
 import { Facebook, Youtube } from 'lucide-react'
-import { Book, Users, Lightbulb, UserPlus } from 'lucide-react'
+import { Book, Users, Lightbulb } from 'lucide-react'
 import { CategoryRecipeCard } from './CategoryRecipeCard';
 import { UserMenu } from './UserMenu';
 import { SearchComponent } from './SearchComponent';
+import { useAuth } from '../context/AuthContext';
 
 
 
@@ -48,14 +49,14 @@ type RecipeDetail = {
 
 
 interface User {
-  username?: string;
+  username: string;
   email?: string;
   userId?: string;
 }
 
 
 export function EnhancedKenyanRecipeExplorerComponent() {
-
+  const { user, logout } = useAuth();
   const [selectedCategory] = useState<string | null>(null);
   const [searchResults, setSearchResults] = useState<Recipe[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -63,34 +64,33 @@ export function EnhancedKenyanRecipeExplorerComponent() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [recommendations,] = useState<Recipe[]>([]);
-  const [user, setUser] = useState<User | null>(null);
-
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      fetchUserData(token);
+    if (user) {
+      fetchUserData();
     }
-  }, []);
+  }, [user]);
 
-  const fetchUserData = async (token: string) => {
+  const fetchUserData = async () => {
     try {
+      if (!user || !user.token) {
+        console.error('No user or token found');
+        return;
+      }
+
       const response = await axios.get('http://localhost:5000/api/users/user-data', {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { Authorization: `Bearer ${user.token}` }
       });
-      setUser(response.data);
+      console.log('User data:', response.data);
+      // You might want to update some state with this data if needed
     } catch (error) {
       console.error('Error fetching user data:', error);
     }
   };
 
-
-
   const handleLogout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
+    logout();
   };
-
 
   const loadMoreRecipes = async () => {
     if (loading) return;
@@ -146,9 +146,9 @@ export function EnhancedKenyanRecipeExplorerComponent() {
                   <Calendar className="w-4 h-4 mr-1" />
                   MEAL PLANNER
                 </TabsTrigger>
-                <TabsTrigger value="my-recipes" className="flex items-center text-gray-700 hover:text-green-600 font-medium text-sm transition-colors duration-200">
+                <TabsTrigger value="global-recipes" className="flex items-center text-gray-700 hover:text-green-600 font-medium text-sm transition-colors duration-200">
                   <Book className="w-4 h-4 mr-1" />
-                  MY RECIPES
+                  GLOBAL RECIPES
                 </TabsTrigger>
                 <TabsTrigger value="community" className="flex items-center text-gray-700 hover:text-green-600 font-medium text-sm transition-colors duration-200">
                   <Users className="w-4 h-4 mr-1" />
@@ -285,11 +285,11 @@ export function EnhancedKenyanRecipeExplorerComponent() {
             <TabsContent value="meal-planner">
               <KenyanMealPlanner />
             </TabsContent>
-            <TabsContent value="my-recipes">
+            <TabsContent value="global-recipes">
               <MyRecipes />
             </TabsContent>
             <TabsContent value="community">
-              <CommunityAndHelpSection />
+              <CommunityAndHelpSection user={user as User | null} />
             </TabsContent>
             <TabsContent value="learn">
               <Learn />
@@ -479,3 +479,10 @@ function FeedbackDialog() {
     </Dialog>
   )
 }
+
+
+
+
+
+
+

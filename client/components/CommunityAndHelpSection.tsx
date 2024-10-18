@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label"
 import { Toaster } from "@/components/ui/toaster"
 import { useToast } from "@/components/ui/use-toast"
 import { MessageSquare, Share2, ThumbsUp, Send } from 'lucide-react'
+import { AddRecipeModal } from './AddRecipeModal'
+
 
 type Discussion = {
   id: string
@@ -92,10 +94,21 @@ const faqItems: FAQItem[] = [
   }
 ]
 
-export default function CommunityAndHelp() {
+interface User {
+  username: string;
+  email?: string;
+  userId?: string;
+}
+
+interface CommunityAndHelpSectionProps {
+  user: User | null;  // Add this line
+}
+
+export default function CommunityAndHelp({ user }: CommunityAndHelpSectionProps) {
   const [discussions, setDiscussions] = useState<Discussion[]>(initialDiscussions)
   const [sharedRecipes, setSharedRecipes] = useState<SharedRecipe[]>(initialSharedRecipes)
   const { addToast } = useToast()
+  const [isAddRecipeModalOpen, setIsAddRecipeModalOpen] = useState(false)
 
   const addDiscussion = (newDiscussion: Discussion) => {
     setDiscussions([newDiscussion, ...discussions])
@@ -111,6 +124,7 @@ export default function CommunityAndHelp() {
       title: "Recipe Shared",
       description: "Your recipe has been shared with the community.",
     })
+    setIsAddRecipeModalOpen(false)
   }
 
   return (
@@ -139,13 +153,22 @@ export default function CommunityAndHelp() {
         <TabsContent value="shared-recipes">
           <div className="mb-6 flex justify-between items-center">
             <h2 className="text-2xl font-semibold">Shared Recipes</h2>
-            <NewSharedRecipeDialog onAddSharedRecipe={addSharedRecipe} />
+            <Button onClick={() => setIsAddRecipeModalOpen(true)}>
+              <Share2 className="mr-2 h-4 w-4" />
+              Share Recipe
+            </Button>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {sharedRecipes.map(recipe => (
               <SharedRecipeCard key={recipe.id} recipe={recipe} />
             ))}
           </div>
+          <AddRecipeModal
+            isOpen={isAddRecipeModalOpen}
+            onClose={() => setIsAddRecipeModalOpen(false)}
+            onAddRecipe={addSharedRecipe}
+            user={user}  // Pass the user prop here
+          />
         </TabsContent>
 
         <TabsContent value="help">
@@ -295,77 +318,6 @@ function NewDiscussionDialog({ onAddDiscussion }: { onAddDiscussion: (discussion
           </div>
           <DialogFooter>
             <Button type="submit">Post Discussion</Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  )
-}
-
-function NewSharedRecipeDialog({ onAddSharedRecipe }: { onAddSharedRecipe: (recipe: SharedRecipe) => void }) {
-  const [isOpen, setIsOpen] = useState(false)
-  const [title, setTitle] = useState('')
-  const [description, setDescription] = useState('')
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    const newRecipe: SharedRecipe = {
-      id: Date.now().toString(),
-      title,
-      author: 'Current User', // In a real app, this would be the logged-in user
-      description,
-      likes: 0,
-      date: new Date().toISOString().split('T')[0]
-    }
-    onAddSharedRecipe(newRecipe)
-    setIsOpen(false)
-    setTitle('')
-    setDescription('')
-  }
-
-  return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button>
-          <Share2 className="mr-2 h-4 w-4" />
-          Share Recipe
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Share a Recipe</DialogTitle>
-          <DialogDescription>
-            Share your favorite recipe with the community.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit}>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="title" className="text-right">
-                Title
-              </Label>
-              <input
-                id="title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="col-span-3 w-full p-2 border rounded"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="description" className="text-right">
-                Description
-              </Label>
-              <textarea
-                id="description"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                className="col-span-3 w-full p-2 border rounded"
-                rows={4}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button type="submit">Share Recipe</Button>
           </DialogFooter>
         </form>
       </DialogContent>

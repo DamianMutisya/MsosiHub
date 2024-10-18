@@ -9,7 +9,12 @@
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "postcss": "^8.4.24",
-    "react-google-login": "^5.2.2"
+    "react-google-login": "^5.2.2",
+    "next": "^14.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "@tanstack/react-query": "^5.0.0",
+    "@tanstack/react-query-devtools": "^5.0.0"
   },
   "scripts": {
     "dev": "next dev",

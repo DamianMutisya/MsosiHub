@@ -1,26 +1,32 @@
 const express = require('express');
 const router = express.Router();
-const MealPlan = require('../models/mealplan'); // You'll need to create this model
+const MealPlan = require('../models/mealplan');
+const authMiddleware = require('../middleware/auth');
 
-router.post('/', async (req, res) => {
+router.post('/', authMiddleware, async (req, res) => {
   try {
     const { userId, mealPlan } = req.body;
+    if (userId !== req.user.userId) {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
     const newMealPlan = new MealPlan({
       userId,
       mealPlan
     });
     await newMealPlan.save();
-    res.status(201).json({ message: 'Meal plan saved successfully' });
+    res.status(201).json({ message: 'Meal plan saved successfully', _id: newMealPlan._id });
   } catch (error) {
     console.error('Error saving meal plan:', error);
     res.status(500).json({ message: 'Failed to save meal plan' });
   }
 });
 
-// New GET route to retrieve meal plans
-router.get('/:userId', async (req, res) => {
+router.get('/:userId', authMiddleware, async (req, res) => {
   try {
     const { userId } = req.params;
+    if (userId !== req.user.userId) {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
     const mealPlans = await MealPlan.find({ userId }).sort({ createdAt: -1 }).limit(5);
     res.json(mealPlans);
   } catch (error) {
@@ -29,16 +35,21 @@ router.get('/:userId', async (req, res) => {
   }
 });
 
-// New PUT route to update existing meal plans
-router.put('/:id', async (req, res) => {
+router.put('/:id', authMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const { userId, mealPlan } = req.body;
-    const updatedMealPlan = await MealPlan.findByIdAndUpdate(id, {
-      userId,
-      mealPlan,
-      updatedAt: new Date()
-    }, { new: true });
+    if (userId !== req.user.userId) {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
+    const updatedMealPlan = await MealPlan.findOneAndUpdate(
+      { _id: id, userId: req.user.userId },
+      {
+        mealPlan,
+        updatedAt: new Date()
+      },
+      { new: true }
+    );
     if (!updatedMealPlan) {
       return res.status(404).json({ message: 'Meal plan not found' });
     }
@@ -46,21 +57,6 @@ router.put('/:id', async (req, res) => {
   } catch (error) {
     console.error('Error updating meal plan:', error);
     res.status(500).json({ message: 'Failed to update meal plan' });
-  }
-});
-
-// New DELETE route to delete a meal plan
-router.delete('/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const deletedMealPlan = await MealPlan.findByIdAndDelete(id);
-    if (!deletedMealPlan) {
-      return res.status(404).json({ message: 'Meal plan not found' });
-    }
-    res.json({ message: 'Meal plan deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting meal plan:', error);
-    res.status(500).json({ message: 'Failed to delete meal plan' });
   }
 });
 

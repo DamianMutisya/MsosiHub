@@ -2,8 +2,6 @@
 
 import React from 'react';
 import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
-import axios from 'axios';
-import { useRouter } from 'next/navigation';
 import { LoginResponse } from '../types/types';
 import { useAuth } from '../context/AuthContext';
 

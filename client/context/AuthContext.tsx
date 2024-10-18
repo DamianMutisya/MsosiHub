@@ -41,8 +41,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.setItem('token', response.data.token);
       router.push('/dashboard');
       return response.data;
-    } catch (error: any) {
-      console.error('Detailed signup error:', error.response?.data || error.message);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        console.error('Detailed signup error:', error.message);
+      } else if (axios.isAxiosError(error) && error.response) {
+        console.error('Detailed signup error:', error.response.data);
+      } else {
+        console.error('An unexpected error occurred during signup');
+      }
       throw error;
     }
   };

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { Button } from "@/components/ui/button"
@@ -8,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
 import { Calendar, Printer, Share2, Mail } from 'lucide-react'
 import { AlertDialog } from "@/components/ui/alert-dialog"
+import { useAuth } from '../context/AuthContext'
 
 const mealCategories = ['Breakfast', 'Lunch', 'Dinner', 'Snack'] as const
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'] as const
@@ -55,6 +57,7 @@ const fetchIngredients = async (dishName: string): Promise<string[]> => {
 };
 
 export default function KenyanMealPlanner() {
+  const { user } = useAuth();
   const [mealPlan, setMealPlan] = useState<MealPlan['mealPlan']>({});
   const [categoryDishes, setCategoryDishes] = useState<Dish[]>([])
   //const [] = useState<string>('');
@@ -69,7 +72,6 @@ export default function KenyanMealPlanner() {
   const [currentPlanId, setCurrentPlanId] = useState<string | null>(null);
   const [shoppingList, setShoppingList] = useState<string[]>([]);
   const [isShoppingListModalOpen, setIsShoppingListModalOpen] = useState(false);
-  const [] = useState('ics');
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [toasts, setToasts] = useState<Array<{ id: string; title: string; description: string }>>([]);
 
@@ -90,7 +92,6 @@ export default function KenyanMealPlanner() {
     // Fetch all dishes when the component mounts
     fetchDishesForCategory('');
     fetchSavedMealPlans();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -137,7 +138,14 @@ export default function KenyanMealPlanner() {
 
   const saveMealPlan = async () => {
     try {
-      const userId = "user123"; // Replace with actual user ID or authentication logic
+      if (!user) {
+        addToast({
+          title: "Error",
+          description: "You must be logged in to save a meal plan."
+        });
+        return;
+      }
+
       const endpoint = currentPlanId 
         ? `http://localhost:5000/api/meal-plans/${currentPlanId}`
         : 'http://localhost:5000/api/meal-plans';
@@ -145,8 +153,10 @@ export default function KenyanMealPlanner() {
       const method = currentPlanId ? 'put' : 'post';
       
       const response = await axios[method](endpoint, {
-        userId,
+        userId: user.userId,
         mealPlan: mealPlan
+      }, {
+        headers: { Authorization: `Bearer ${user.token}` }
       });
       
       addToast({
@@ -167,8 +177,13 @@ export default function KenyanMealPlanner() {
 
   const fetchSavedMealPlans = async () => {
     try {
-      const userId = "user123"; // Replace with actual user ID or authentication logic
-      const response = await axios.get(`http://localhost:5000/api/meal-plans/${userId}`);
+      if (!user) {
+        console.error('User not logged in');
+        return;
+      }
+      const response = await axios.get(`http://localhost:5000/api/meal-plans/${user.userId}`, {
+        headers: { Authorization: `Bearer ${user.token}` }
+      });
       setSavedMealPlans(response.data);
     } catch (error) {
       console.error('Error fetching saved meal plans:', error);

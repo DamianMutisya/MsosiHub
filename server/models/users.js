@@ -10,7 +10,9 @@ const userSchema = new mongoose.Schema({
     dietaryRestrictions: [String],
     favoriteCuisines: [String]
   },
-  createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
+  resetPasswordToken: String,
+  resetPasswordExpires: Date
 });
 
 userSchema.pre('save', async function(next) {

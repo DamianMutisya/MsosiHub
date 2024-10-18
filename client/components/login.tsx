@@ -1,17 +1,17 @@
 'use client'
 
 import React, { useState } from 'react';
-import axios from 'axios';
-import { useRouter } from 'next/navigation';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LoginResponse } from '../types/types';
 import { useAuth } from '../context/AuthContext';
+import Link from 'next/link';
 
 interface LoginProps {
   onSwitchToSignUp: () => void;
   onLogin: (userData: LoginResponse) => void;
 }
+
 
 export function Login({ onSwitchToSignUp, onLogin }: LoginProps) {
   const [email, setEmail] = useState('');
@@ -24,8 +24,12 @@ export function Login({ onSwitchToSignUp, onLogin }: LoginProps) {
     try {
       const userData = await login(email, password);
       onLogin(userData);
-    } catch (error) {
-      setError('Login failed. Please check your credentials and try again.');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setError(`Login failed: ${error.message}`);
+      } else {
+        setError('Login failed. Please check your credentials and try again.');
+      }
     }
   };
 
@@ -52,11 +56,16 @@ export function Login({ onSwitchToSignUp, onLogin }: LoginProps) {
             className="w-full p-2 border rounded"
             required
           />
+          <div className="text-right">
+            <Link href="/forgot-password" className="text-sm text-blue-500 hover:underline">
+              Forgot Password?
+            </Link>
+          </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
           <Button type="submit" className="w-full bg-black text-white">Login</Button>
         </form>
         <p className="text-center mt-4">
-          Don't have an account? <button onClick={onSwitchToSignUp} className="text-blue-500">Sign up</button>
+          Don&apos;t have an account? <button onClick={onSwitchToSignUp} className="text-blue-500">Sign up</button>
         </p>
       </CardContent>
     </Card>

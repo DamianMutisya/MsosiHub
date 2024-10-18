@@ -1,57 +1,59 @@
 import React, { useState } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import axios from 'axios'
 
-interface Recipe {
-  _id: string;
-  recipe_name: string;
-  ingredients: string[];
-  instructions: string[];
-  category: string;
+interface SharedRecipe {
+  id: string;
+  title: string;
+  author: string;
+  description: string;
+  likes: number;
+  date: string;
+}
+
+interface User {
+  username: string;
+  email?: string;
+  userId?: string;
 }
 
 interface AddRecipeModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddRecipe: (recipe: Recipe) => void;
+  onAddRecipe: (recipe: SharedRecipe) => void;
+  user: User | null;
 }
 
-export function AddRecipeModal({ isOpen, onClose, onAddRecipe }: AddRecipeModalProps) {
+export function AddRecipeModal({ isOpen, onClose, onAddRecipe, user }: AddRecipeModalProps) {
   const [recipeName, setRecipeName] = useState('');
   const [ingredients, setIngredients] = useState('');
   const [instructions, setInstructions] = useState('');
   const [category, setCategory] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState('');
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitMessage('');
     try {
-      const response = await axios.post('http://localhost:5000/api/recipes', {
-        recipe_name: recipeName,
-        ingredients: ingredients.split('\n'),
-        instructions: instructions.split('\n'),
-        category,
-      });
-      setSubmitMessage(response.data.message);
-      // Reset form fields
-      setRecipeName('');
-      setIngredients('');
-      setInstructions('');
-      setCategory('');
-      onAddRecipe({
-        _id: response.data._id,
-        recipe_name: response.data.recipe_name,
-        ingredients: response.data.ingredients,
-        instructions: response.data.instructions,
-        category: response.data.category,
-      });
+      const newRecipe: SharedRecipe = {
+        id: Date.now().toString(),
+        title,
+        author: user ? user.username : 'Anonymous',
+        description,
+        likes: 0,
+        date: new Date().toISOString().split('T')[0]
+      };
+      onAddRecipe(newRecipe);
+      setTitle('');
+      setDescription('');
+      setSubmitMessage('Recipe shared successfully!');
     } catch (error) {
-      console.error('Error adding recipe:', error);
-      setSubmitMessage('Failed to add recipe. Please try again.');
+      console.error('Error sharing recipe:', error);
+      setSubmitMessage('Failed to share recipe. Please try again.');
     } finally {
       setIsSubmitting(false);
     }

@@ -32,8 +32,8 @@ export function SignUp({ onSwitchToLogin, onSignUp }: SignUpProps) {
     try {
       const userData = await signup(username, email, password);
       onSignUp(userData);
-    } catch (error: any) {
-      console.error('Signup error:', error.response?.data || error.message);
+    } catch (error: unknown) {
+      console.error('Signup error:', error instanceof Error ? error.message : String(error));
       setError('Registration failed. Please try again.');
     }
   };

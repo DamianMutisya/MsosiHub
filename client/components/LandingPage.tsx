@@ -9,46 +9,20 @@ import { useRouter } from 'next/navigation';
 import { AuthDialog } from './authdialog';
 import Image from 'next/image';
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import { LoginResponse } from '../types/types';
 
 export function LandingPage() {
   const router = useRouter();
-  const [toasts, setToasts] = useState<Array<{ title: string; description: string }>>([]);
+  const [toasts] = useState<Array<{ title: string; description: string }>>([]);
   const [isAuthOpen, setIsAuthOpen] = React.useState(false);
 
-  const addToast = (toast: { title: string; description: string }) => {
-    setToasts(prevToasts => [...prevToasts, toast]);
-    setTimeout(() => {
-      setToasts(prevToasts => prevToasts.slice(1));
-    }, 3000);
-  };
 
-  const handleAuthSuccess = (userData: LoginResponse) => {
+  const handleAuthSuccess = () => {
     setIsAuthOpen(false);
     router.push('/dashboard');
   };
 
-  const handleSignUp = (userData: LoginResponse) => {
-    setIsAuthOpen(false);
-    addToast({
-      title: "Sign Up Successful",
-      description: `Welcome to MsosiHub, ${userData.username}!`,
-    });
-    router.push('/dashboard');
-  };
 
-  const handleLogin = (userData: LoginResponse) => {
-    setIsAuthOpen(false);
-    addToast({
-      title: "Login Successful",
-      description: `Welcome back to MsosiHub, ${userData.username}!`,
-    });
-    router.push('/dashboard');
-  };
 
-  const handleGoogleLogin = (userData: LoginResponse) => {
-    handleLogin(userData);
-  };
 
   const openAuth = () => {
     setIsAuthOpen(true);

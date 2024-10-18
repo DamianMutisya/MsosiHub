@@ -93,9 +93,19 @@ export function CategoryRecipeCard({ recipe }: CategoryRecipeCardProps) {
             alt={recipe.recipe_name} 
             width={300}
             height={200}
-            objectFit="cover"
-            onError={() => setImageError(true)}
+            style={{ objectFit: 'cover' }}
+            onError={() => {
+              console.error(`Failed to load image: ${imageUrl}`);
+              setImageError(true);
+            }}
           />
+        )}
+        {(isLoading || imageError) && (
+          <div className="w-full h-[200px] bg-gray-200 flex items-center justify-center">
+            <span className="text-gray-500">
+              {isLoading ? 'Loading...' : 'Image not available'}
+            </span>
+          </div>
         )}
       </CardHeader>
       <CardContent className="p-4">
