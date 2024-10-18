@@ -15,14 +15,10 @@ export function LandingPage() {
   const [toasts] = useState<Array<{ title: string; description: string }>>([]);
   const [isAuthOpen, setIsAuthOpen] = React.useState(false);
 
-
   const handleAuthSuccess = () => {
     setIsAuthOpen(false);
     router.push('/dashboard');
   };
-
-
-
 
   const openAuth = () => {
     setIsAuthOpen(true);
@@ -49,11 +45,7 @@ export function LandingPage() {
 
             <div className="container mx-auto px-4 py-20 text-center text-white">
               <h1 className="text-5xl font-bold mb-6">Discover the Flavors of Kenya</h1>
-<<<<<<< HEAD
               <p className="text-xl mb-8">Explore, cook, and share authentic Kenyan recipes</p>
-=======
-              <p className="text-xl mb-8">Explore, cook, and share authentic Kenyan Recipes</p>
->>>>>>> 4dc062990798dc0486d0cc4c73a12832dcb0fbe1
               <Button size="lg" onClick={openAuth} className="bg-green-600 hover:bg-green-700 text-white">
                 Get Started
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -92,7 +84,6 @@ export function LandingPage() {
     </GoogleOAuthProvider>
   )
 }
-
 
 function FeatureSection() {
   const features = [
