@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { Button } from "@/components/ui/button"
@@ -36,7 +35,7 @@ type MealPlan = {
 
 const fetchKenyanDishes = async (category?: string): Promise<Dish[]> => {
   try {
-    const response = await axios.get<Dish[]>('http://localhost:5000/api/recipes', {
+    const response = await axios.get<Dish[]>(`${process.env.NEXT_PUBLIC_API_URL}/api/recipes`, {
       params: category ? { category } : {}
     });
     return Array.isArray(response.data) ? response.data : [];
@@ -48,7 +47,7 @@ const fetchKenyanDishes = async (category?: string): Promise<Dish[]> => {
 
 const fetchIngredients = async (dishName: string): Promise<string[]> => {
   try {
-    const response = await axios.get(`http://localhost:5000/api/recipes/ingredients/${encodeURIComponent(dishName)}`);
+    const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/recipes/ingredients/${encodeURIComponent(dishName)}`);
     return response.data.ingredients || []; // Ensure it returns an empty array if undefined
   } catch (error) {
     console.error('Error fetching ingredients:', error);
@@ -147,8 +146,8 @@ export default function KenyanMealPlanner() {
       }
 
       const endpoint = currentPlanId 
-        ? `http://localhost:5000/api/meal-plans/${currentPlanId}`
-        : 'http://localhost:5000/api/meal-plans';
+        ? `${process.env.NEXT_PUBLIC_API_URL}/api/meal-plans/${currentPlanId}`
+        : `${process.env.NEXT_PUBLIC_API_URL}/api/meal-plans`;
       
       const method = currentPlanId ? 'put' : 'post';
       
@@ -181,7 +180,7 @@ export default function KenyanMealPlanner() {
         console.error('User not logged in');
         return;
       }
-      const response = await axios.get(`http://localhost:5000/api/meal-plans/${user.userId}`, {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/meal-plans/${user.userId}`, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       setSavedMealPlans(response.data);
@@ -372,7 +371,7 @@ export default function KenyanMealPlanner() {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`http://localhost:5000/api/meal-plans/${currentPlanId}`);
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/api/meal-plans/${currentPlanId}`);
       addToast({
         title: "Success",
         description: "Meal plan deleted successfully"

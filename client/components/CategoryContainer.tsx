@@ -13,7 +13,7 @@ export function CategoryContainer({ onCategorySelect }: CategoryContainerProps) 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/categories');
+        const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/categories`);
         setCategories(response.data);
       } catch (error) {
         console.error('Error fetching categories:', error);

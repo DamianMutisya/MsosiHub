@@ -5,8 +5,7 @@ import { Search } from "lucide-react"
 interface SearchBarProps {
   onSearch: (term: string) => void;
 }
-
-const CustomInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
+const CustomInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement> & { className?: string }>(
   ({ className, ...props }, ref) => {
     return (
       <input

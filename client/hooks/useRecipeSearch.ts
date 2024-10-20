@@ -16,7 +16,7 @@ interface PageData {
 }
 
 const fetchRecipes = async ({ pageParam = 0, searchTerm }: { pageParam: number, searchTerm: string }): Promise<PageData> => {
-  const response = await axios.get(`http://localhost:5000/api/edamam-recipes`, {
+  const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/edamam-recipes`, {
     params: {
       searchTerm,
       from: pageParam,

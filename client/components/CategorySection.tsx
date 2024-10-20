@@ -27,7 +27,7 @@ export function CategorySection() {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await axios.get<Recipe[]>('http://localhost:5000/api/recipes', {
+        const response = await axios.get<Recipe[]>(`${process.env.NEXT_PUBLIC_API_URL}/api/recipes`, {
           params: { category: selectedCategory }
         });
         console.log('Fetched Recipes:', response.data); // Log fetched recipes

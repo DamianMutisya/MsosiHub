@@ -108,7 +108,7 @@ export function EnhancedKenyanRecipeExplorerComponent() {
         return;
       }
 
-      const response = await axios.get('http://localhost:5000/api/users/user-data', {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/users/user-data`, {
         headers: { Authorization: `Bearer ${user.token}` }
       });
       console.log('User data:', response.data);
@@ -126,7 +126,7 @@ export function EnhancedKenyanRecipeExplorerComponent() {
     if (loading) return;
     setLoading(true);
     try {
-      const response = await axios.get<Recipe[]>('http://localhost:5000/api/recipes', {
+      const response = await axios.get<Recipe[]>(`${process.env.NEXT_PUBLIC_API_URL}/api/recipes`, {
         params: {
           category: selectedCategory,
           page: page + 1,
@@ -387,7 +387,7 @@ function RecipeCard({ title, description, image, rating, time, difficulty }: {
 
   const handleViewRecipe = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/api/recipes/${encodeURIComponent(title)}`);
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/recipes/${encodeURIComponent(title)}`);
       setRecipeDetails(Array.isArray(response.data) ? response.data : [response.data]);
       setIsModalOpen(true);
     } catch (error) {

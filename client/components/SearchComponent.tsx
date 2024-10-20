@@ -17,7 +17,7 @@ export function SearchComponent({ onSearchResults }: SearchComponentProps) {
     setError(null);
 
     try {
-      const response = await axios.get<Recipe[]>(`http://localhost:5000/api/recipes/${encodeURIComponent(searchTerm)}`);
+      const response = await axios.get<Recipe[]>(`${process.env.NEXT_PUBLIC_API_URL}/api/recipes/${encodeURIComponent(searchTerm)}`);
       
       const resultsWithId = response.data.map(result => ({
         ...result,

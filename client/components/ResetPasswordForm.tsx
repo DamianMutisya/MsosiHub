@@ -17,7 +17,7 @@ const ResetPasswordForm: React.FC = () => {
       return;
     }
     try {
-      await axios.post(`http://localhost:5000/api/users/reset-password/${token}`, { password });
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/users/reset-password/${token}`, { password });
       addToast("Password has been reset successfully.");
       router.push('/login');
     } catch (error) {

@@ -9,7 +9,7 @@ const ForgotPasswordForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/users/forgot-password', { email });
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/users/forgot-password`, { email });
       setToast({ message: 'Password reset email sent. Please check your inbox.', isVisible: true });
     } catch (error: unknown) {
       if (error instanceof Error) {

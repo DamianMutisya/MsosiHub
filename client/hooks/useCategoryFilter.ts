@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 
 const fetchCategories = async () => {
-  const response = await axios.get<string[]>('http://localhost:5000/api/categories')
+  const response = await axios.get<string[]>(`${process.env.NEXT_PUBLIC_API_URL}/api/categories`)
   return response.data
 }
 

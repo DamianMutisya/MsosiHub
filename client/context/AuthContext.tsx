@@ -61,7 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const googleLogin = async (credential: string) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/users/google-login', { token: credential });
+      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/users/google-login`, { token: credential });
       setUser(response.data);
       localStorage.setItem('token', response.data.token);
       router.push('/dashboard');
