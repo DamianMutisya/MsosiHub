@@ -1,5 +1,11 @@
 {
   "dependencies": {
+    "@radix-ui/react-toast": "^1.2.1",
+    "@react-oauth/google": "^0.12.1",
+    "@tailwindcss/aspect-ratio": "^0.4.2",
+    "@tanstack/react-query": "^5.59.15",
+    "@tanstack/react-query-devtools": "^5.59.15",
+    "@types/react-datepicker": "^6.2.0",
     "autoprefixer": "^10.4.14",
     "bcrypt": "^5.1.1",
     "express-session": "^1.18.0",
@@ -12,9 +18,7 @@
     "react-google-login": "^5.2.2",
     "next": "^14.0.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "@tanstack/react-query": "^5.0.0",
-    "@tanstack/react-query-devtools": "^5.0.0"
+    "react-dom": "^18.2.0"
   },
   "scripts": {
     "dev": "next dev",

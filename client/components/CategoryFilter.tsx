@@ -9,25 +9,24 @@ interface CategoryFilterProps {
 
 export function CategoryFilter({ categories, selectedCategory, onCategorySelect }: CategoryFilterProps) {
   return (
-    <div className="flex flex-wrap gap-2 mt-4">
+    <div className="flex flex-wrap gap-3 mt-4">
+      <Button 
+        variant={selectedCategory === null ? "default" : "outline"}
+        onClick={() => onCategorySelect(null)}
+        className="rounded-full px-4 py-2 text-sm"
+      >
+        All Categories
+      </Button>
       {categories.map((category) => (
         <Button 
           key={category}
-          variant={selectedCategory === category ? "secondary" : "outline"}
+          variant={selectedCategory === category ? "default" : "outline"}
           onClick={() => onCategorySelect(category)}
-          className="text-sm"
+          className="rounded-full px-4 py-2 text-sm"
         >
           {category}
         </Button>
       ))}
-      <Button 
-        variant={selectedCategory === null ? "secondary" : "outline"}
-        onClick={() => onCategorySelect(null)}
-        className="text-sm"
-      >
-        All Categories
-      </Button>
     </div>
   );
 }
-

@@ -15,10 +15,14 @@ app.use(express.json());
 
 // Update the MongoDB connection
 mongoose.connect(process.env.MONGODB_URI, {
-  // Remove the deprecated options
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
 })
-.then(() => console.log('Connected to MongoDB'))
-.catch((err) => console.error('MongoDB connection error:', err));
+.then(() => console.log('Connected to MongoDB Atlas'))
+.catch((err) => {
+  console.error('MongoDB Atlas connection error:', err.message);
+  process.exit(1);
+});
 
 // Import Recipe model
 const Recipe = require('./models/Recipe');

@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -9,10 +9,10 @@ import { useRouter } from 'next/navigation';
 import { AuthDialog } from './authdialog';
 import Image from 'next/image';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import { FacebookIcon, TwitterIcon, InstagramIcon } from 'lucide-react';
 
 export function LandingPage() {
   const router = useRouter();
-  const [toasts] = useState<Array<{ title: string; description: string }>>([]);
   const [isAuthOpen, setIsAuthOpen] = React.useState(false);
 
   const handleAuthSuccess = () => {
@@ -24,45 +24,78 @@ export function LandingPage() {
     setIsAuthOpen(true);
   };
 
+  useEffect(() => {
+    const navbar = document.getElementById('navbar');
+    const handleScroll = () => {
+      if (window.scrollY > 50) {
+        navbar?.classList.add('bg-white', 'shadow-md');
+      } else {
+        navbar?.classList.remove('bg-white', 'shadow-md');
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
     <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ''}>
-      <div className="min-h-screen bg-gray-900">
-        <div className="relative">
-          <Image
-            src="/images/kenya.jpg"
-            alt="Kenyan Background"
-            fill
-            className="object-cover opacity-50"
-          />
-          <div className="relative z-10">
-            <header className="container mx-auto px-4 py-6">
-              <div className="flex justify-between items-center">
-                <div className="flex items-center space-x-4">
-                  <Image src="/images/logo.png" alt="MsosiHub Logo" width={120} height={120} />
-                </div>
+      <div className="min-h-screen bg-white">
+        <header className="fixed w-full z-10 transition-all duration-300" id="navbar">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex justify-between items-center">
+              <div className="bg-white bg-opacity-80 rounded-full p-2">
+                <Image src="/images/logo.png" alt="MsosiHub Logo" width={100} height={100} />
               </div>
-            </header>
-
-            <div className="container mx-auto px-4 py-20 text-center text-white">
-              <h1 className="text-5xl font-bold mb-6">Discover the Flavors of Kenya</h1>
-              <p className="text-xl mb-8">Explore, cook, and share authentic Kenyan recipes</p>
-              <Button size="lg" onClick={openAuth} className="bg-green-600 hover:bg-green-700 text-white">
+              <Button onClick={openAuth} className="bg-green-600 hover:bg-green-700 text-white">
                 Get Started
-                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </div>
           </div>
-        </div>
+        </header>
 
         <main>
+          <section className="relative h-screen flex items-center justify-center">
+            <Image
+              src="/images/img11.jpg"
+              alt="Kenyan Cuisine"
+              fill
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/30" />
+            <div className="relative z-10 text-center text-white">
+              <h1 className="text-6xl font-bold mb-6 animate-fade-in">Discover the Flavors of Kenya</h1>
+              <p className="text-xl mb-8 animate-fade-in-delay">Explore, cook, and share authentic Kenyan recipes</p>
+              <Button size="lg" onClick={openAuth} className="bg-green-600 hover:bg-green-700 text-white animate-bounce">
+                Start Your Culinary Journey
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </div>
+          </section>
+
           <FeatureSection />
           <TestimonialSection />
         </main>
 
-        <footer className="bg-green-600 text-white py-8">
+        <footer className="bg-green-800 text-white py-8 relative">
+          <div className="absolute top-0 left-0 right-0">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+              <path fill="#ffffff" fillOpacity="1" d="M0,96L80,112C160,128,320,160,480,154.7C640,149,800,107,960,90.7C1120,75,1280,85,1360,90.7L1440,96L1440,0L1360,0C1280,0,1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0L0,0Z"></path>
+            </svg>
+          </div>
           <div className="container mx-auto px-4 text-center">
-            <Image src="/images/logo.png" alt="MsosiHub Logo" width={90} height={90} className="mx-auto mb-4" />
-            <p>&copy; 2023 MsosiHub. All rights reserved.</p>
+            <Image src="/images/logo-white.png" alt="MsosiHub Logo" width={90} height={90} className="mx-auto mb-4" />
+            <div className="flex justify-center space-x-6 mb-4">
+              <a href="#" className="text-white hover:text-green-300 transition-colors duration-200">
+                <FacebookIcon className="h-6 w-6" />
+              </a>
+              <a href="#" className="text-white hover:text-green-300 transition-colors duration-200">
+                <TwitterIcon className="h-6 w-6" />
+              </a>
+              <a href="#" className="text-white hover:text-green-300 transition-colors duration-200">
+                <InstagramIcon className="h-6 w-6" />
+              </a>
+            </div>
+            <p className="text-sm font-light tracking-wider">&copy; 2024 MsosiHub. All rights reserved.</p>
           </div>
         </footer>
 
@@ -73,13 +106,6 @@ export function LandingPage() {
           onLogin={handleAuthSuccess}
           onGoogleLogin={handleAuthSuccess}
         />
-
-        {toasts.map((toast, index) => (
-          <div key={index} className="fixed bottom-4 right-4 bg-white border border-gray-300 rounded-lg shadow-lg p-4 max-w-sm">
-            <h4 className="font-bold">{toast.title}</h4>
-            <p>{toast.description}</p>
-          </div>
-        ))}
       </div>
     </GoogleOAuthProvider>
   )
@@ -87,26 +113,28 @@ export function LandingPage() {
 
 function FeatureSection() {
   const features = [
-    { icon: <Utensils className="h-10 w-10 text-green-600" />, title: "Authentic Recipes", description: "Access a wide range of traditional East African recipes" },
-    { icon: <Users className="h-10 w-10 text-green-600" />, title: "Community", description: "Share and discuss recipes with fellow food enthusiasts" },
-    { icon: <BookOpen className="h-10 w-10 text-green-600" />, title: "Meal Planner", description: "Plan your meals with our easy-to-use tool" },
+    { icon: <Utensils className="h-12 w-12 text-green-600" />, title: "Authentic Recipes", description: "Access a wide range of traditional East African recipes" },
+    { icon: <Users className="h-12 w-12 text-green-600" />, title: "Community", description: "Share and discuss recipes with fellow food enthusiasts" },
+    { icon: <BookOpen className="h-12 w-12 text-green-600" />, title: "Meal Planner", description: "Plan your meals with our easy-to-use tool" },
   ]
 
   return (
-    <section className="py-20">
-      <h2 className="text-3xl font-bold text-green-800 text-center mb-12">Why Choose MsosiHub?</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {features.map((feature, index) => (
-          <Card key={index} className="text-center">
-            <CardHeader>
-              <div className="mx-auto">{feature.icon}</div>
-              <CardTitle className="text-xl font-semibold text-green-700">{feature.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-600">{feature.description}</p>
-            </CardContent>
-          </Card>
-        ))}
+    <section className="py-20 bg-gray-50">
+      <div className="container mx-auto px-4">
+        <h2 className="text-4xl font-bold text-green-800 text-center mb-12">Why Choose MsosiHub?</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {features.map((feature, index) => (
+            <Card key={index} className="text-center hover:shadow-lg transition-shadow duration-300">
+              <CardHeader>
+                <div className="mx-auto bg-green-100 rounded-full p-4 inline-block">{feature.icon}</div>
+                <CardTitle className="text-2xl font-semibold text-green-700 mt-4">{feature.title}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">{feature.description}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     </section>
   )
@@ -120,24 +148,25 @@ function TestimonialSection() {
   ]
 
   return (
-    <section className="py-20 bg-gray-200">
-      <h2 className="text-3xl font-bold text-green-800 text-center mb-12">What Our Users Say</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {testimonials.map((testimonial, index) => (
-          <Card key={index} className="bg-white">
+    <section className="py-20 bg-green-700 text-white">
+      <div className="container mx-auto px-4">
+        <h2 className="text-4xl font-bold text-center mb-12">What Our Users Say</h2>
+        <div className="max-w-4xl mx-auto">
+          {/* Implement a carousel here */}
+          <Card className="bg-white text-gray-800">
             <CardContent className="pt-6">
               <div className="flex items-center space-x-4 mb-4">
-                <Avatar>
-                  <AvatarFallback>{testimonial.avatar}</AvatarFallback>
+                <Avatar className="h-16 w-16">
+                  <AvatarFallback>{testimonials[0].avatar}</AvatarFallback>
                 </Avatar>
                 <div>
-                  <p className="font-semibold text-green-700">{testimonial.name}</p>
+                  <p className="font-semibold text-green-700 text-lg">{testimonials[0].name}</p>
                 </div>
               </div>
-              <p className="text-gray-600 italic">&quot;{testimonial.quote}&quot;</p>
+              <p className="text-gray-600 italic text-lg">&quot;{testimonials[0].quote}&quot;</p>
             </CardContent>
           </Card>
-        ))}
+        </div>
       </div>
     </section>
   )

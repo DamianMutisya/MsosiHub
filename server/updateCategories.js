@@ -38,8 +38,11 @@ function categorizeRecipe(recipeName) {
 
 async function updateCategories() {
   try {
-    await mongoose.connect(uri);
-    console.log('Connected to MongoDB');
+    await mongoose.connect(uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log('Connected to MongoDB Atlas');
 
     const recipes = await Recipe.find();
     let updatedCount = 0;

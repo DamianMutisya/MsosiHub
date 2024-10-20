@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/componen
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { Twitter, Instagram, MessageSquare, Star, Clock, ChefHat, Calendar, Heart,} from "lucide-react"
+import { MessageSquare, Star, Clock, ChefHat, Heart, Calendar, Book, Users, Lightbulb, Twitter, Instagram, Facebook, Youtube } from "lucide-react"
 import { RecipeDetailsModal } from './RecipeDetailsModal';
 import axios from 'axios';
 import KenyanMealPlanner from './KenyanMealPlanner';
@@ -15,12 +15,11 @@ import CommunityAndHelpSection from './CommunityAndHelpSection';
 import { Learn } from './learn'; // Adjust the path as necessary
 import React from 'react';
 import Image from "next/image";
-import { Facebook, Youtube } from 'lucide-react'
-import { Book, Users, Lightbulb } from 'lucide-react'
 import { CategoryRecipeCard } from './CategoryRecipeCard';
 import { UserMenu } from './UserMenu';
 import { SearchComponent } from './SearchComponent';
 import { useAuth } from '../context/AuthContext';
+import { CategorySection } from './CategorySection';
 
 
 
@@ -54,6 +53,37 @@ interface User {
   userId?: string;
 }
 
+const getTabIcon = (tab: string) => {
+  switch (tab) {
+    case 'discover':
+      return <ChefHat className="w-4 h-4 mr-1" />;
+    case 'meal-planner':
+      return <Calendar className="w-4 h-4 mr-1" />;
+    case 'global-recipes':
+      return <Book className="w-4 h-4 mr-1" />;
+    case 'community':
+      return <Users className="w-4 h-4 mr-1" />;
+    case 'learn':
+      return <Lightbulb className="w-4 h-4 mr-1" />;
+    default:
+      return null;
+  }
+};
+
+const getSocialIcon = (social: string) => {
+  switch (social) {
+    case 'Twitter':
+      return <Twitter className="w-5 h-5" />;
+    case 'Instagram':
+      return <Instagram className="w-5 h-5" />;
+    case 'Facebook':
+      return <Facebook className="w-5 h-5" />;
+    case 'Youtube':
+      return <Youtube className="w-5 h-5" />;
+    default:
+      return null;
+  }
+};
 
 export function EnhancedKenyanRecipeExplorerComponent() {
   const { user, logout } = useAuth();
@@ -128,36 +158,27 @@ export function EnhancedKenyanRecipeExplorerComponent() {
   return (
     <div className="min-h-screen flex flex-col">
       <Tabs defaultValue="discover" className="w-full">
-        <header className="bg-white border-b">
-          <div className="container mx-auto px-4 py-3">
+        <header className="bg-white shadow-md sticky top-0 z-50">
+          <div className="container mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <Image 
                 src="/images/logo.png" 
                 alt="MsosiHub Logo" 
-                width={80}
-                height={80}
+                width={100}
+                height={100}
+                className="transition-transform duration-300 hover:scale-105"
               />
               <TabsList className="hidden md:flex items-center space-x-6">
-                <TabsTrigger value="discover" className="flex items-center text-gray-700 hover:text-green-600 font-medium text-sm transition-colors duration-200">
-                  <ChefHat className="w-4 h-4 mr-1" />
-                  DISCOVER
-                </TabsTrigger>
-                <TabsTrigger value="meal-planner" className="flex items-center text-gray-700 hover:text-green-600 font-medium text-sm transition-colors duration-200">
-                  <Calendar className="w-4 h-4 mr-1" />
-                  MEAL PLANNER
-                </TabsTrigger>
-                <TabsTrigger value="global-recipes" className="flex items-center text-gray-700 hover:text-green-600 font-medium text-sm transition-colors duration-200">
-                  <Book className="w-4 h-4 mr-1" />
-                  GLOBAL RECIPES
-                </TabsTrigger>
-                <TabsTrigger value="community" className="flex items-center text-gray-700 hover:text-green-600 font-medium text-sm transition-colors duration-200">
-                  <Users className="w-4 h-4 mr-1" />
-                  COMMUNITY
-                </TabsTrigger>
-                <TabsTrigger value="learn" className="flex items-center text-gray-700 hover:text-green-600 font-medium text-sm transition-colors duration-200">
-                  <Lightbulb className="w-4 h-4 mr-1" />
-                  LEARN
-                </TabsTrigger>
+                {['discover', 'meal-planner', 'global-recipes', 'community', 'learn'].map((tab) => (
+                  <TabsTrigger 
+                    key={tab} 
+                    value={tab} 
+                    className="flex items-center text-gray-700 hover:text-green-600 font-medium text-sm transition-colors duration-200 capitalize"
+                  >
+                    {getTabIcon(tab)}
+                    {tab.replace('-', ' ').toUpperCase()}
+                  </TabsTrigger>
+                ))}
               </TabsList>
               <UserMenu user={user || undefined} onLogout={handleLogout} />
             </div>
@@ -168,8 +189,8 @@ export function EnhancedKenyanRecipeExplorerComponent() {
         <main className="flex-grow bg-gray-100">
           <div className="container mx-auto px-4 py-8">
             <TabsContent value="discover">
-              <div className="mb-8 relative">
-                <div className="relative h-[300px]">
+              <div className="mb-12 relative overflow-hidden rounded-lg shadow-lg">
+                <div className="relative h-[400px]">
                   <Image
                     src="/images/kenya.avif"
                     alt="Kenya"
@@ -178,9 +199,10 @@ export function EnhancedKenyanRecipeExplorerComponent() {
                       objectFit: 'cover',
                     }}
                     fill
+                    className="transition-transform duration-500 hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col justify-center items-center text-white">
-                    <h1 className="text-4xl font-bold mb-4 text-white">Discover the Flavors of Kenya</h1>
+                  <div className="absolute inset-0 bg-gradient-to-r from-black to-transparent flex flex-col justify-center items-start text-white p-8">
+                    <h1 className="text-5xl font-bold mb-4 text-white">Discover the Flavors of Kenya</h1>
                     <div className="w-full max-w-md">
                       <SearchComponent onSearchResults={handleSearchResults} />
                     </div>
@@ -215,6 +237,12 @@ export function EnhancedKenyanRecipeExplorerComponent() {
                     difficulty="Medium"
                   />
                 </div>
+              </div>
+              
+              {/* New Category Section */}
+              <div className="mb-8">
+                <h2 className="text-2xl font-bold mb-4">Explore Categories</h2>
+                <CategorySection />
               </div>
               
               <div style={{ marginBottom: '20px' }}>
@@ -299,33 +327,36 @@ export function EnhancedKenyanRecipeExplorerComponent() {
       </Tabs>
 
       {/* Footer */}
-      <footer className="bg-gray-800 text-white mt-12 py-8">
+      <footer className="bg-gray-800 text-white py-12">
         <div className="container mx-auto px-4">
           <div className="flex flex-wrap justify-between items-center">
-            <div className="flex items-center mb-4 md:mb-0">
+            <div className="flex items-center mb-6 md:mb-0">
               <Image 
                 src="/images/logo.png" 
                 alt="MsosiHub Logo" 
-                width={90} 
-                height={90}
-                className="mr-2"
+                width={100} 
+                height={100}
+                className="mr-4"
               />
-    
+              <p className="text-sm">Exploring Kenya&apos;s culinary treasures</p>
             </div>
-            <div className="flex space-x-4 mb-4 md:mb-0">
-              <a href="#" className="hover:text-green-400 transition-colors duration-200"><Twitter /></a>
-              <a href="#" className="hover:text-green-400 transition-colors duration-200"><Instagram /></a>
-              <a href="#" className="hover:text-green-400 transition-colors duration-200"><Facebook /></a>
-              <a href="#" className="hover:text-green-400 transition-colors duration-200"><Youtube /></a>
+            <div className="flex space-x-6 mb-6 md:mb-0">
+              {['Twitter', 'Instagram', 'Facebook', 'Youtube'].map((social) => (
+                <a key={social} href="#" className="hover:text-green-400 transition-colors duration-200">
+                  {getSocialIcon(social)}
+                </a>
+              ))}
             </div>
             <FeedbackDialog />
           </div>
-          <div className="mt-8 text-center text-gray-400">
+          <div className="mt-8 pt-8 border-t border-gray-700 text-center text-gray-400">
             <p>&copy; 2023 MsosiHub. All rights reserved.</p>
-            <div className="mt-2 space-x-4">
-              <a href="#" className="hover:text-white transition-colors duration-200">Privacy Policy</a>
-              <a href="#" className="hover:text-white transition-colors duration-200">Terms of Service</a>
-              <a href="#" className="hover:text-white transition-colors duration-200">Contact Us</a>
+            <div className="mt-4 space-x-6">
+              {['Privacy Policy', 'Terms of Service', 'Contact Us'].map((link) => (
+                <a key={link} href="#" className="hover:text-white transition-colors duration-200">
+                  {link}
+                </a>
+              ))}
             </div>
           </div>
         </div>
@@ -352,6 +383,7 @@ function RecipeCard({ title, description, image, rating, time, difficulty }: {
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [recipeDetails, setRecipeDetails] = useState<RecipeDetail[]>([]);
+  const [isSaved, setIsSaved] = useState(false);
 
   const handleViewRecipe = async () => {
     try {
@@ -363,15 +395,20 @@ function RecipeCard({ title, description, image, rating, time, difficulty }: {
     }
   };
 
+  const handleSaveRecipe = () => {
+    // Implement the logic to save the recipe
+    setIsSaved(!isSaved);
+    // You should also update this in your backend or local storage
+  };
+
   return (
     <Card className="overflow-hidden transition-transform duration-300 hover:scale-105">
-      <CardHeader className="p-0">
+      <CardHeader className="p-0 h-48 relative">
         <Image 
           src={image}
           alt={title} 
-          width={300}
-          height={200}
-          style={{ objectFit: 'cover' }}
+          layout="fill"
+          objectFit="cover"
         />
       </CardHeader>
       <CardContent className="p-4">
@@ -393,9 +430,9 @@ function RecipeCard({ title, description, image, rating, time, difficulty }: {
         </div>
       </CardContent>
       <CardFooter className="flex justify-between p-4 bg-gray-50">
-        <Button variant="outline" size="sm" className="flex items-center">
-          <Heart className="h-4 w-4 mr-2" />
-          Save
+        <Button variant="outline" size="sm" className="flex items-center" onClick={handleSaveRecipe}>
+          <Heart className={`h-4 w-4 mr-2 ${isSaved ? 'fill-current text-red-500' : ''}`} />
+          {isSaved ? 'Saved' : 'Save'}
         </Button>
         <Button onClick={handleViewRecipe} className="bg-green-600 hover:bg-green-700 text-white">View Recipe</Button>
       </CardFooter>
@@ -408,6 +445,7 @@ function RecipeCard({ title, description, image, rating, time, difficulty }: {
     </Card>
   )
 }
+
 
 
 
@@ -479,6 +517,15 @@ function FeedbackDialog() {
     </Dialog>
   )
 }
+
+
+
+
+
+
+
+
+
 
 
 
