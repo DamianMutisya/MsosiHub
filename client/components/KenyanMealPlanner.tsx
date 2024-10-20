@@ -398,6 +398,10 @@ export default function KenyanMealPlanner() {
     }, 3000);
   };
 
+  useEffect(() => {
+    fetchSavedMealPlans();
+  }, [fetchSavedMealPlans]);
+
   return (
     <div className="container mx-auto p-4 space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4">

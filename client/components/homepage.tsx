@@ -95,12 +95,6 @@ export function EnhancedKenyanRecipeExplorerComponent() {
   const [loading, setLoading] = useState(false);
   const [recommendations,] = useState<Recipe[]>([]);
 
-  useEffect(() => {
-    if (user) {
-      fetchUserData();
-    }
-  }, [user]);
-
   const fetchUserData = async () => {
     try {
       if (!user || !user.token) {
@@ -117,6 +111,10 @@ export function EnhancedKenyanRecipeExplorerComponent() {
       console.error('Error fetching user data:', error);
     }
   };
+
+  useEffect(() => {
+    fetchUserData();
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -517,6 +515,8 @@ function FeedbackDialog() {
     </Dialog>
   )
 }
+
+
 
 
 

@@ -33,12 +33,6 @@ export function RecipeDetailsModal({ recipes, isOpen, onClose, onError }: Recipe
   const [youtubeVideo, setYoutubeVideo] = useState<YouTubeVideo | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  useEffect(() => {
-    if (selectedRecipe) {
-      fetchYouTubeVideo(selectedRecipe.recipe_name);
-    }
-  }, [selectedRecipe]);
-
   const fetchYouTubeVideo = async (recipeName: string) => {
     try {
       const response = await fetch(
@@ -60,6 +54,18 @@ export function RecipeDetailsModal({ recipes, isOpen, onClose, onError }: Recipe
       onError(error as Error);
     }
   };
+
+  useEffect(() => {
+    if (selectedRecipe) {
+      fetchYouTubeVideo(selectedRecipe.recipe_name);
+    }
+  }, [selectedRecipe]);
+
+  useEffect(() => {
+    if (recipes.length > 0) {
+      setSelectedRecipe(recipes[0]);
+    }
+  }, [recipes]);
 
   const handleRecipeClick = (recipe: RecipeDetail) => {
     setSelectedRecipe(recipe);
