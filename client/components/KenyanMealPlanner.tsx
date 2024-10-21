@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { ScrollArea } from "@/components/ui/scroll-area"
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert"
+import { Button } from "../components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../components/ui/card"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../components/ui/dialog"
+import { ScrollArea } from "../components/ui/scroll-area"
+import { Alert, AlertTitle, AlertDescription } from "../components/ui/alert"
 import { Calendar, Printer, Share2, Mail } from 'lucide-react'
-import { AlertDialog } from "@/components/ui/alert-dialog"
+import { AlertDialog } from "../components/ui/alert-dialog"
 import { useAuth } from '../context/AuthContext'
 
 const mealCategories = ['Breakfast', 'Lunch', 'Dinner', 'Snack'] as const

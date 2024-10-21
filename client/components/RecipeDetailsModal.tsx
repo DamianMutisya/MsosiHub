@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "../components/ui/dialog";
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "../components/ui/button";
+import { ScrollArea } from "../components/ui/scroll-area";
 
 const YOUTUBE_API_KEY = process.env.NEXT_PUBLIC_YOUTUBE_API_KEY || 'AIzaSyAoySlDGPutWh9nnzMoKd07xhp3pxCYLYU';
 

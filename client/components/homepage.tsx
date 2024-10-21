@@ -1,11 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
+import { Button } from "../components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../components/ui/card"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/tabs"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog"
+import { Label } from "../components/ui/label"
 import { MessageSquare, Star, Clock, ChefHat, Heart, Calendar, Book, Users, Lightbulb, Twitter, Instagram, Facebook, Youtube } from "lucide-react"
 import { RecipeDetailsModal } from './RecipeDetailsModal';
 import axios from 'axios';
