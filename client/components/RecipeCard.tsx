@@ -1,8 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-//import { Button } from "@/components/ui/button"
-//import { Star, Clock, ChefHat } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
+
 
 interface RecipeCardProps {
   title: string;
