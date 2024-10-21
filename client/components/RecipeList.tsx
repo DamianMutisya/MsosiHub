@@ -1,6 +1,6 @@
 import React from 'react'
 import { CategoryRecipeCard } from './CategoryRecipeCard'
-import { Button } from "@/components/ui/button"
+import { Button } from "../components/ui/button"
 import { useInView } from 'react-intersection-observer'
 
 interface Recipe {
