@@ -1,11 +1,11 @@
 'use client'
 
 import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../components/ui/dialog";
 import { Login } from './login';
 import { SignUp } from './signup';
 import { GoogleAuth } from './GoogleAuth';
-import { LoginResponse } from '@/types/types';
+import { LoginResponse } from '../types/types';
 
 
 interface AuthDialogProps {

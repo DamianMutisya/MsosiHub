@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Toaster } from "@/components/ui/toaster"
-import { useToast } from "@/components/ui/use-toast"
+import { Button } from "../components/ui/button"
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../components/ui/card"
+import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog"
+import { Label } from "../components/ui/label"
+import { Toaster } from "../components/ui/toaster"
+import { useToast } from "../components/ui/use-toast"
 import { MessageSquare, Share2, ThumbsUp, Send } from 'lucide-react'
 import { AddRecipeModal } from './AddRecipeModal'
 

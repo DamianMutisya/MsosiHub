@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../components/ui/card"
+import { Button } from "../components/ui/button"
 import { Star, Clock, ChefHat } from 'lucide-react'
 import Image from 'next/image';
 

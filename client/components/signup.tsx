@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState } from 'react';
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "../components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 import { Eye, EyeOff } from 'lucide-react';
 import { LoginResponse } from '../types/types';
 import { useAuth } from '../context/AuthContext';

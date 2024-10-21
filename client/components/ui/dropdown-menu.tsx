@@ -1,3 +1,4 @@
+/* eslint-disable react/prop-types */
 "use client"
 
 import * as React from "react"
@@ -8,7 +9,7 @@ import {
   DotFilledIcon,
 } from "@radix-ui/react-icons"
 
-import { cn } from "@/lib/utils"
+import { cn } from "../../lib/utils"
 
 const DropdownMenu = DropdownMenuPrimitive.Root
 

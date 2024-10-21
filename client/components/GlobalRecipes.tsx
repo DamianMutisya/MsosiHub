@@ -1,10 +1,10 @@
 import React, { useState, useCallback } from 'react'
-import { useRecipeSearch } from '@/hooks/useRecipeSearch'
-import { useArticleFetch } from '@/hooks/useArticleFetch'
-import { SearchBar } from '@/components/SearchBar'
-import { RecipeList } from '@/components/RecipeList'
-import { ArticleList } from '@/components/ArticleList'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useRecipeSearch } from '../hooks/useRecipeSearch'
+import { useArticleFetch } from '../hooks/useArticleFetch'
+import { SearchBar } from '../components/SearchBar'
+import { RecipeList } from '../components/RecipeList'
+import { ArticleList } from '../components/ArticleList'
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card"
 
 export function MyRecipes() {
   const [searchTerm, setSearchTerm] = useState('')
