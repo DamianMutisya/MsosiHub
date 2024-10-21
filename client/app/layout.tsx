@@ -3,8 +3,8 @@ import { Providers } from './providers'
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { ToastProvider } from '@/components/ui/use-toast';
-import { AuthProvider } from '@/context/AuthContext';
+import { ToastProvider } from '../components/ui/use-toast';
+import { AuthProvider } from '../context/AuthContext';
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",

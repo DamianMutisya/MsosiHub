@@ -1,6 +1,6 @@
 'use client'
 
-import { LandingPage } from "@/components/LandingPage"
+import { LandingPage } from "../components/LandingPage"
 import React from 'react'
 
 
