@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../compone
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/tabs"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog"
 import { Label } from "../components/ui/label"
-import { MessageSquare, Star, Clock, ChefHat, Heart, Calendar, Book, Users, Lightbulb, Twitter, Instagram, Facebook, Youtube } from "lucide-react"
+import { MessageSquare, Star, Clock, ChefHat, Heart, Calendar, Book, Users, Lightbulb, Twitter, Instagram, Facebook, Youtube, Github, Linkedin } from "lucide-react"
 import { RecipeDetailsModal } from './RecipeDetailsModal';
 import axios from 'axios';
 import KenyanMealPlanner from './KenyanMealPlanner';
@@ -80,6 +80,10 @@ const getSocialIcon = (social: string) => {
       return <Facebook className="w-5 h-5" />;
     case 'Youtube':
       return <Youtube className="w-5 h-5" />;
+    case 'Github':
+      return <Github className="w-5 h-5" />;
+    case 'Linkedin':
+      return <Linkedin className="w-5 h-5" />;
     default:
       return null;
   }
@@ -339,11 +343,18 @@ export function EnhancedKenyanRecipeExplorerComponent() {
               <p className="text-sm">Exploring Kenya&apos;s culinary treasures</p>
             </div>
             <div className="flex space-x-6 mb-6 md:mb-0">
-              {['Twitter', 'Instagram', 'Facebook', 'Youtube'].map((social) => (
-                <a key={social} href="#" className="hover:text-green-400 transition-colors duration-200">
-                  {getSocialIcon(social)}
-                </a>
-              ))}
+              <a href="https://github.com/DamianMutisya" target="_blank" rel="noopener noreferrer" className="hover:text-green-400 transition-colors duration-200">
+                {getSocialIcon('Github')}
+              </a>
+              <a href="https://twitter.com/DamianMutisya" target="_blank" rel="noopener noreferrer" className="hover:text-green-400 transition-colors duration-200">
+                {getSocialIcon('Twitter')}
+              </a>
+              <a href="https://www.linkedin.com/in/damian-mutisya-94291b170/" target="_blank" rel="noopener noreferrer" className="hover:text-green-400 transition-colors duration-200">
+                {getSocialIcon('Linkedin')}
+              </a>
+              <a href="https://www.youtube.com/@Damianomutisya" target="_blank" rel="noopener noreferrer" className="hover:text-green-400 transition-colors duration-200">
+                {getSocialIcon('Youtube')}
+              </a>
             </div>
             <FeedbackDialog />
           </div>
@@ -515,6 +526,8 @@ function FeedbackDialog() {
     </Dialog>
   )
 }
+
+
 
 
 
