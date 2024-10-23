@@ -420,37 +420,41 @@ export default function KenyanMealPlanner() {
 
   return (
     <div className="container mx-auto p-4 space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-        <h2 className="text-3xl font-bold">My Weekly Meal Planner</h2>
-        <div className="flex items-center space-x-2">
-          <Button onClick={createNewMealPlan}>New Plan</Button>
-          <Button onClick={saveMealPlan}>Save Plan</Button>
-          <Button onClick={deleteMealPlan} disabled={!currentPlanId}>Delete Plan</Button>
-          <Button onClick={generateShoppingList}>Generate Shopping List</Button>
-          <Button onClick={() => handleExport('ics')} title="Export to Calendar">
-            <Calendar className="h-4 w-4" />
-          </Button>
-          <Button onClick={() => handleExport('print')} title="Print Meal Plan">
-            <Printer className="h-4 w-4" />
-          </Button>
-          <Button onClick={() => handleExport('whatsapp')} title="Share via WhatsApp">
-            <Share2 className="h-4 w-4" />
-          </Button>
-          <Button onClick={() => handleExport('email')} title="Share via Email">
-            <Mail className="h-4 w-4" />
-          </Button>
-        </div>
+      <h2 className="text-3xl font-bold mb-4">My Weekly Meal Planner</h2>
+      
+      <div className="flex flex-wrap gap-2 mb-4">
+        <Button onClick={createNewMealPlan} className="flex-grow sm:flex-grow-0">New Plan</Button>
+        <Button onClick={saveMealPlan} className="flex-grow sm:flex-grow-0">Save Plan</Button>
+        <Button onClick={deleteMealPlan} disabled={!currentPlanId} className="flex-grow sm:flex-grow-0">Delete Plan</Button>
+        <Button onClick={generateShoppingList} className="flex-grow sm:flex-grow-0">Shopping List</Button>
       </div>
+
+      <div className="flex flex-wrap gap-2 mb-4">
+        <Button onClick={() => handleExport('ics')} title="Export to Calendar" className="flex-grow sm:flex-grow-0">
+          <Calendar className="h-4 w-4 mr-2" /> Calendar
+        </Button>
+        <Button onClick={() => handleExport('print')} title="Print Meal Plan" className="flex-grow sm:flex-grow-0">
+          <Printer className="h-4 w-4 mr-2" /> Print
+        </Button>
+        <Button onClick={() => handleExport('whatsapp')} title="Share via WhatsApp" className="flex-grow sm:flex-grow-0">
+          <Share2 className="h-4 w-4 mr-2" /> Share
+        </Button>
+        <Button onClick={() => handleExport('email')} title="Share via Email" className="flex-grow sm:flex-grow-0">
+          <Mail className="h-4 w-4 mr-2" /> Email
+        </Button>
+      </div>
+
       {error && (
         <Alert variant="destructive">
           <AlertTitle>Error</AlertTitle>
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
+
       <Tabs defaultValue="Monday" className="w-full">
-        <TabsList className="grid grid-cols-7 w-full">
+        <TabsList className="flex flex-nowrap overflow-x-auto pb-2 mb-4">
           {daysOfWeek.map(day => (
-            <TabsTrigger key={day} value={day} className="text-xs sm:text-sm">
+            <TabsTrigger key={day} value={day} className="flex-shrink-0">
               {day.slice(0, 3)}
             </TabsTrigger>
           ))}
@@ -462,31 +466,29 @@ export default function KenyanMealPlanner() {
                 <CardTitle>{day}&apos;s Kenyan Meal Plan</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="space-y-4">
                   {mealCategories.map(category => (
-                    <div key={category} className="bg-secondary p-4 rounded-lg min-h-[200px] flex flex-col justify-between">
+                    <div key={category} className="bg-secondary p-4 rounded-lg">
                       <h3 className="font-semibold mb-2">{category}</h3>
                       {mealPlan[day]?.[category] ? (
-                        <div className="flex flex-col justify-between flex-grow">
+                        <div className="flex justify-between items-center">
                           <p>{mealPlan[day]![category]}</p>
                           <Button
                             variant="outline"
-                            className="mt-2"
+                            size="sm"
                             onClick={() => openDishSelector(day, category)}
                           >
-                            Change {category}
+                            Change
                           </Button>
                         </div>
                       ) : (
-                        <div className="flex-grow flex items-end">
-                          <Button
-                            variant="outline"
-                            className="w-full"
-                            onClick={() => openDishSelector(day, category)}
-                          >
-                            Add {category}
-                          </Button>
-                        </div>
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          onClick={() => openDishSelector(day, category)}
+                        >
+                          Add {category}
+                        </Button>
                       )}
                     </div>
                   ))}
@@ -496,6 +498,7 @@ export default function KenyanMealPlanner() {
           </TabsContent>
         ))}
       </Tabs>
+
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>

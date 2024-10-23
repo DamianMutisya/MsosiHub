@@ -12,6 +12,13 @@ body {
   .text-balance {
     text-wrap: balance;
   }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
 }
 
 @layer base {
@@ -71,6 +78,9 @@ body {
 }
 
 @layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
   * {
     @apply border-border;
   }
@@ -99,4 +109,17 @@ body {
 
 .animate-bounce {
   animation: bounce 1s infinite;
+}
+
+@keyframes subtle-zoom {
+  0% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1.15);
+  }
+}
+
+.animate-subtle-zoom {
+  animation: subtle-zoom 20s infinite alternate ease-in-out;
 }

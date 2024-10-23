@@ -83,21 +83,21 @@ export function RecipeDetailsModal({ recipes, isOpen, onClose, onError }: Recipe
     <AnimatePresence>
       {isOpen && (
         <Dialog open={isOpen} onOpenChange={onClose}>
-          <DialogContent className="sm:max-w-[90vw] sm:h-[90vh] p-0 overflow-hidden bg-gray-900 rounded-lg shadow-xl flex">
+          <DialogContent className="sm:max-w-[95vw] max-h-[95vh] p-0 overflow-hidden bg-gray-900 rounded-lg shadow-xl flex flex-col sm:flex-row">
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               transition={{ duration: 0.3 }}
-              className="w-1/4 bg-gray-800 p-4 overflow-y-auto"
+              className="w-full sm:w-1/4 bg-gray-800 p-4 overflow-y-auto"
             >
               <DialogHeader className="mb-4">
-                <DialogTitle className="text-2xl font-bold text-green-400">Recipes</DialogTitle>
-                <DialogDescription className="text-sm text-gray-400">
+                <DialogTitle className="text-xl sm:text-2xl font-bold text-green-400">Recipes</DialogTitle>
+                <DialogDescription className="text-xs sm:text-sm text-gray-400">
                   Select a recipe to view details
                 </DialogDescription>
               </DialogHeader>
-              <ScrollArea className="h-[calc(90vh-8rem)]">
+              <ScrollArea className="h-[30vh] sm:h-[calc(90vh-8rem)]">
                 <div className="space-y-2">
                   {recipes.map((recipe, index) => (
                     <motion.button
@@ -128,25 +128,25 @@ export function RecipeDetailsModal({ recipes, isOpen, onClose, onError }: Recipe
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -20 }}
                 transition={{ duration: 0.2 }}
-                className="w-3/4 p-6 overflow-y-auto bg-gray-800"
+                className="w-full sm:w-3/4 p-4 sm:p-6 overflow-y-auto bg-gray-800"
               >
-                <ScrollArea className="h-[calc(90vh-2rem)]">
-                  <h2 className="text-3xl font-bold mb-4 text-green-400">{selectedRecipe?.recipe_name}</h2>
+                <ScrollArea className="h-[60vh] sm:h-[calc(90vh-2rem)]">
+                  <h2 className="text-2xl sm:text-3xl font-bold mb-4 text-green-400">{selectedRecipe?.recipe_name}</h2>
                   
-                  <div className="grid grid-cols-2 gap-6 mb-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 mb-6">
                     <div>
-                      <h3 className="text-xl font-semibold mb-2 text-green-400">Ingredients</h3>
+                      <h3 className="text-lg sm:text-xl font-semibold mb-2 text-green-400">Ingredients</h3>
                       <ul className="list-disc list-inside space-y-1">
                         {selectedRecipe?.ingredients?.map((ingredient, index) => (
-                          <li key={index} className="text-gray-300">{ingredient}</li>
+                          <li key={index} className="text-sm sm:text-base text-gray-300">{ingredient}</li>
                         ))}
                       </ul>
                     </div>
                     <div>
-                      <h3 className="text-xl font-semibold mb-2 text-green-400">Instructions</h3>
+                      <h3 className="text-lg sm:text-xl font-semibold mb-2 text-green-400">Instructions</h3>
                       <ol className="list-decimal list-inside space-y-2">
                         {selectedRecipe?.instructions?.map((instruction, index) => (
-                          <li key={index} className="text-gray-300">{instruction}</li>
+                          <li key={index} className="text-sm sm:text-base text-gray-300">{instruction}</li>
                         ))}
                       </ol>
                     </div>

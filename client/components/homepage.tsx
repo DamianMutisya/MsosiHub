@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react'
 import { Button } from "../components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../components/ui/card"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/tabs"
-import { Star, Clock, ChefHat, Heart, Calendar, Book, Users, Lightbulb, GithubIcon, TwitterIcon, LinkedinIcon, YoutubeIcon } from "lucide-react"
+import { Star, Clock, ChefHat, Heart, Calendar, Book, Users, Lightbulb, GithubIcon, TwitterIcon, LinkedinIcon, YoutubeIcon, Menu, X } from "lucide-react"
 import { RecipeDetailsModal } from './RecipeDetailsModal';
 import axios from 'axios';
 import KenyanMealPlanner from './KenyanMealPlanner';
@@ -76,6 +76,7 @@ export function EnhancedKenyanRecipeExplorerComponent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
   const [searchError, setSearchError] = useState<string | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const fetchUserData = async () => {
     try {
@@ -128,26 +129,34 @@ export function EnhancedKenyanRecipeExplorerComponent() {
       <Tabs defaultValue="discover" className="w-full">
         <header className="bg-white shadow-md sticky top-0 z-50">
           <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <Image 
-                src="/images/logo.png" 
-                alt="MsosiHub Logo" 
-                width={100}
-                height={100}
-                className="transition-transform duration-300 hover:scale-105"
-              />
-              <TabsList className="hidden md:flex items-center space-x-6">
-                {['discover', 'meal-planner', 'global-recipes', 'community', 'learn'].map((tab) => (
-                  <TabsTrigger 
-                    key={tab} 
-                    value={tab} 
-                    className="flex items-center text-gray-700 hover:text-green-600 font-medium text-sm transition-colors duration-200 capitalize"
-                  >
-                    {getTabIcon(tab)}
-                    {tab.replace('-', ' ').toUpperCase()}
-                  </TabsTrigger>
-                ))}
-              </TabsList>
+            <div className="flex flex-col sm:flex-row items-center justify-between">
+              <div className="flex items-center justify-between w-full sm:w-auto mb-4 sm:mb-0">
+                <Image 
+                  src="/images/logo.png" 
+                  alt="MsosiHub Logo" 
+                  width={80}
+                  height={80}
+                  className="transition-transform duration-300 hover:scale-105"
+                />
+                <button className="sm:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                  {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                </button>
+              </div>
+              <nav className={`${mobileMenuOpen ? 'block' : 'hidden'} sm:block w-full sm:w-auto`}>
+                <TabsList className="flex flex-col sm:flex-row items-stretch sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                  {['discover', 'meal-planner', 'global-recipes', 'community', 'learn'].map((tab) => (
+                    <TabsTrigger 
+                      key={tab} 
+                      value={tab} 
+                      className="flex items-center justify-center text-gray-700 hover:text-green-600 font-medium text-sm transition-colors duration-200 capitalize py-2 px-4 rounded-md"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      {getTabIcon(tab)}
+                      <span className="ml-2">{tab.replace('-', ' ')}</span>
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
+              </nav>
               <UserMenu user={user || undefined} onLogout={handleLogout} />
             </div>
           </div>
@@ -345,6 +354,9 @@ function RecipeCard({ title, description, image, rating, time, difficulty }: {
 
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+
+
 
 
 

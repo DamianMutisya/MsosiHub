@@ -10,6 +10,7 @@ import { AuthDialog } from './authdialog';
 import Image from 'next/image';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import { TwitterIcon, YoutubeIcon, GithubIcon, LinkedinIcon } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export function LandingPage() {
   const router = useRouter();
@@ -54,21 +55,50 @@ export function LandingPage() {
         </header>
 
         <main>
-          <section className="relative h-screen flex items-center justify-center">
-            <Image
-              src="/images/img11.jpg"
-              alt="Kenyan Cuisine"
-              fill
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/30" />
-            <div className="relative z-10 text-center text-white">
-              <h1 className="text-6xl font-bold mb-6 animate-fade-in">Discover the Flavors of Kenya</h1>
-              <p className="text-xl mb-8 animate-fade-in-delay">Explore, cook, and share authentic Kenyan recipes</p>
-              <Button size="lg" onClick={openAuth} className="bg-green-600 hover:bg-green-700 text-white animate-bounce">
-                Start Your Culinary Journey
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
+          <section className="relative h-screen flex items-center justify-center overflow-hidden">
+            <div className="absolute inset-0 z-0">
+              <Image
+                src="/images/dish.jpg"
+                alt="Kenyan Cuisine"
+                layout="fill"
+                objectFit="cover"
+                quality={100}
+                className="transform scale-110 motion-safe:animate-subtle-zoom"
+              />
+              <div className="absolute inset-0 bg-black/30" />
+              <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/40" />
+            </div>
+            <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
+                className="text-5xl sm:text-6xl font-bold mb-6 leading-tight text-green-50 drop-shadow-lg"
+              >
+                Experience the Magic of Kenyan Flavors
+              </motion.h1>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.4 }}
+                className="text-xl sm:text-2xl mb-8 leading-relaxed text-green-100 drop-shadow-md"
+              >
+                Discover the rich flavors of Kenya as you explore authentic local recipes, traditional cooking methods, and deep cultural insights.
+              </motion.p>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.6 }}
+              >
+                <Button
+                  size="lg"
+                  onClick={openAuth}
+                  className="bg-green-600 hover:bg-green-700 text-white text-lg px-8 py-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
+                >
+                  Welcome to New Tastes
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </Button>
+              </motion.div>
             </div>
           </section>
 
