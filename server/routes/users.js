@@ -48,8 +48,11 @@ router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     
+    console.log('Login attempt for email:', email); // Add this line
+    
     // Validate input
     if (!email || !password) {
+      console.log('Login failed: Email or password missing'); // Add this line
       return res.status(400).json({ message: 'Email and password are required' });
     }
     
@@ -144,11 +147,18 @@ router.post('/google-login', async (req, res) => {
       audience: process.env.GOOGLE_CLIENT_ID,
     });
     const payload = ticket.getPayload();
-    const { email, name } = payload;
+    const { email, name, sub: googleId } = payload;
 
     let user = await User.findOne({ email });
     if (!user) {
-      user = new User({ username: name, email });
+      user = new User({ 
+        username: name, 
+        email, 
+        googleId 
+      });
+      await user.save();
+    } else if (!user.googleId) {
+      user.googleId = googleId;
       await user.save();
     }
 
@@ -216,7 +226,7 @@ router.post('/forgot-password', async (req, res) => {
       subject: 'Password Reset Link',
       text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
         Please click on the following link, or paste this into your browser to complete the process:\n\n
-        ${process.env.CLIENT_URL}/reset-password/${resetToken}\n\n
+        http://localhost:3000/reset-password/${resetToken}\n\n
         If you did not request this, please ignore this email and your password will remain unchanged.\n`
     };
 

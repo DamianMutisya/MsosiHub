@@ -21,10 +21,10 @@
     "react-dom": "^18.2.0"
   },
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "install": "npm install --legacy-peer-deps"
+    "dev": "pm2 start ecosystem.config.js",
+    "start": "pm2 start ecosystem.config.js --env production",
+    "stop": "pm2 stop ecosystem.config.js",
+    "test": "NODE_ENV=test jest",
+    "build": "echo 'Build step is not required for this project'"
   }
 }

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Recipe = require('../models/Recipe'); // Adjust the path if needed
+const mongoose = require('mongoose');
 
 // Add this test route at the top of the file
 router.get('/test', (req, res) => {
@@ -24,36 +25,24 @@ router.get('/ingredients', async (req, res) => {
 
 // Search route
 router.get('/search', async (req, res) => {
-  console.log('Search route hit with query:', req.query);
   try {
-    const { q } = req.query;
-    if (!q) {
-      return res.status(400).json({ message: 'Search query is required' });
+    const { term } = req.query;
+    if (!term) {
+      return res.status(400).json({ error: 'Search term is required' });
     }
 
-    console.log('Searching for:', q);
+    // Perform the search in your database
+    const recipes = await Recipe.find({ 
+      $or: [
+        { recipe_name: { $regex: term, $options: 'i' } },
+        { description: { $regex: term, $options: 'i' } }
+      ]
+    }).limit(10);
 
-    const recipes = await Recipe.find({
-      recipe_name: { $regex: new RegExp(q, 'i') }  // Match recipe names that contain the search term
-    }).limit(20); // Limit to 20 results for performance
-
-    console.log(`Found ${recipes.length} recipes matching "${q}"`);
-    
-    if (recipes.length > 0) {
-      const recipesWithVideo = await Promise.all(
-        recipes.map(async (recipe) => {
-          const videoUrl = await fetchYouTubeVideo(recipe.recipe_name);
-          console.log('Video URL for', recipe.recipe_name, ':', videoUrl);
-          return { ...recipe.toObject(), videoUrl };
-        })
-      );
-      res.json(recipesWithVideo);
-    } else {
-      res.status(404).json({ message: 'No recipes found matching the search term' });
-    }
+    res.json(recipes);
   } catch (error) {
     console.error('Error searching recipes:', error);
-    res.status(500).json({ message: 'Error searching recipes', error: error.message });
+    res.status(500).json({ error: 'An error occurred while searching for recipes' });
   }
 });
 
@@ -87,19 +76,39 @@ router.get('/all', async (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const { category } = req.query;
-    console.log('Received category query:', category);
     let query = {};
     if (category) {
       query.category = category;
     }
-    console.log('MongoDB query:', JSON.stringify(query));
     const recipes = await Recipe.find(query);
-    console.log(`Found ${recipes.length} recipes for category:`, category);
-    console.log('Sample recipe:', recipes[0]);
+    if (!recipes || recipes.length === 0) {
+      return res.status(404).json({ message: 'No recipes found' });
+    }
     res.json(recipes);
   } catch (error) {
     console.error('Error fetching recipes:', error);
-    res.status(500).json({ message: 'Error fetching recipes' });
+    res.status(500).json({ message: 'Error fetching recipes', error: error.message });
+  }
+});
+
+router.get('/:identifier', async (req, res) => {
+  try {
+    const { identifier } = req.params;
+    let recipe;
+
+    if (mongoose.Types.ObjectId.isValid(identifier)) {
+      recipe = await Recipe.findById(identifier);
+    } else {
+      recipe = await Recipe.findOne({ recipe_name: identifier });
+    }
+
+    if (!recipe) {
+      return res.status(404).json({ message: 'Recipe not found' });
+    }
+    res.json(recipe);
+  } catch (error) {
+    console.error('Error fetching recipe:', error);
+    res.status(500).json({ message: 'Error fetching recipe', error: error.message });
   }
 });
 

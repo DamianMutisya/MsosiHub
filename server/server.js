@@ -1,8 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-require('dotenv').config();
-const session = require('express-session');
+const dotenv = require('dotenv');
+const path = require('path');
 const passport = require('passport');
 require('./config/passport'); 
 const axios = require('axios');
@@ -10,13 +10,24 @@ const axios = require('axios');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+dotenv.config({
+  path: path.resolve(__dirname, `.env.${process.env.NODE_ENV}`)
+});
+
+app.use(cors({
+  origin: ['https://msosi-hub.vercel.app', 'http://localhost:3000'],
+  credentials: true
+}));
 app.use(express.json());
+
+app.use('/api/categories', require('./routes/categories'));
+app.use('/api/recipes', require('./routes/recipes'));
+
 
 // Update the MongoDB connection
 mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+  //useNewUrlParser: true,
+  //useUnifiedTopology: true,
 })
 .then(() => console.log('Connected to MongoDB Atlas'))
 .catch((err) => {
@@ -84,6 +95,7 @@ app.get('/api/recipes', async (req, res) => {
 app.get('/api/recipes/:searchTerm', async (req, res) => {
   try {
     const searchTerm = req.params.searchTerm;
+    console.log('Searching for:', searchTerm);
     const recipes = await Recipe.find({ 
       $or: [
         { recipe_name: { $regex: new RegExp(searchTerm, 'i') } },
@@ -91,6 +103,7 @@ app.get('/api/recipes/:searchTerm', async (req, res) => {
         { instructions: { $regex: new RegExp(searchTerm, 'i') } }
       ]
     });
+    console.log('Found recipes:', recipes.length);
     if (recipes.length > 0) {
       res.json(recipes);
     } else {

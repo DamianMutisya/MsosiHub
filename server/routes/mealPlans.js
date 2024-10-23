@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const MealPlan = require('../models/mealplan');
+const MealPlan = require('../models/MealPlan');
 const authMiddleware = require('../middleware/auth');
 
 router.post('/', authMiddleware, async (req, res) => {
