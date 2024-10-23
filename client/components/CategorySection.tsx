@@ -1,8 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useCategoryFilter } from '../hooks/useCategoryFilter';
-import { CategoryFilter } from './CategoryFilter';
-import { CategoryRecipeCard } from './CategoryRecipeCard';
 import axios from 'axios';
+import { Button } from "./ui/button";
+import { CategoryRecipeCard } from './CategoryRecipeCard';
+import { RecipeDetailsModal } from './RecipeDetailsModal';
+
+interface Category {
+  name: string;
+  image: string;
+}
 
 interface Recipe {
   _id: string;
@@ -13,61 +18,108 @@ interface Recipe {
   difficulty?: string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+interface CategoryRecipeCardProps {
+  recipe: {
+    _id: string;
+    recipe_name: string;
+    averageRating?: number;
+    cook_time?: string;
+    difficulty?: string;
+  };
+  onViewRecipe: () => void;
+}
+
 export function CategorySection() {
-  const { data: categories, isLoading: isCategoriesLoading, error: categoriesError } = useCategoryFilter();
+  const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<Error | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
 
   useEffect(() => {
-    console.log('Selected Category:', selectedCategory); // Log selected category
-    const fetchRecipes = async () => {
-      if (!selectedCategory) return;
-      setIsLoading(true);
-      setError(null);
-      try {
-        const response = await axios.get<Recipe[]>(`${process.env.NEXT_PUBLIC_API_URL}/api/recipes`, {
-          params: { category: selectedCategory }
-        });
-        console.log('Fetched Recipes:', response.data); // Log fetched recipes
-        setRecipes(response.data);
-      } catch (err) {
-        setError(err as Error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+    fetchCategories();
+  }, []);
 
-    fetchRecipes();
-  }, [selectedCategory]);
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/categories`);
+      const categoriesWithImages = response.data.map((name: string) => ({
+        name,
+        image: `/images/categories/${name.toLowerCase()}.jpg`
+      }));
+      setCategories(categoriesWithImages);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      setError('Failed to load categories. Please try again.');
+      setIsLoading(false);
+    }
+  };
 
-  if (isCategoriesLoading) return <div>Loading categories...</div>;
-  if (categoriesError) return <div>Error loading categories: {(categoriesError as Error).message}</div>;
+  const fetchRecipesForCategory = async (category: string) => {
+    setIsLoading(true);
+    try {
+      const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/recipes?category=${category}`);
+      setRecipes(response.data);
+      setSelectedCategory(category);
+      setIsLoading(false);
+    } catch (error) {
+      console.error('Error fetching recipes:', error);
+      setError('Failed to load recipes. Please try again.');
+      setIsLoading(false);
+    }
+  };
+
+  const handleViewRecipe = (recipe: Recipe) => {
+    setSelectedRecipe(recipe);
+    setIsModalOpen(true);
+  };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
-    <div>
-      <CategoryFilter
-        categories={categories || []}
-        selectedCategory={selectedCategory}
-        onCategorySelect={setSelectedCategory}
-      />
+    <div className="mt-8">
+      <h2 className="text-2xl font-bold mb-4">Explore Categories</h2>
+      <div className="flex flex-wrap gap-4 mb-8">
+        {categories.map((category) => (
+          <Button
+            key={category.name}
+            onClick={() => fetchRecipesForCategory(category.name)}
+            variant={selectedCategory === category.name ? "default" : "outline"}
+          >
+            {category.name}
+          </Button>
+        ))}
+      </div>
       {selectedCategory && (
-        <div className="mt-6">
+        <div>
           <h3 className="text-xl font-semibold mb-4">{selectedCategory} Recipes</h3>
-          {isLoading ? (
-            <div>Loading recipes...</div>
-          ) : error ? (
-            <div>Error loading recipes: {error.message}</div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {recipes.map((recipe) => (
-                <CategoryRecipeCard key={recipe._id} recipe={recipe} />
-              ))}
-            </div>
-          )}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {recipes.map((recipe) => (
+              <CategoryRecipeCard
+                key={recipe._id}
+                recipe={recipe}
+                onViewRecipe={() => handleViewRecipe(recipe)}
+              />
+            ))}
+          </div>
         </div>
       )}
+      <RecipeDetailsModal
+        recipes={selectedRecipe ? [selectedRecipe] : []}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onError={(error) => console.error('Error in RecipeDetailsModal:', error)}
+      />
     </div>
   );
 }

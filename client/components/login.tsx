@@ -6,6 +6,7 @@ import { Button } from "../components/ui/button";
 import { LoginResponse } from '../types/types';
 import { useAuth } from '../context/AuthContext';
 import Link from 'next/link';
+import axios from 'axios';
 
 interface LoginProps {
   onSwitchToSignUp: () => void;
@@ -22,10 +23,15 @@ export function Login({ onSwitchToSignUp, onLogin }: LoginProps) {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      console.log('Attempting login with email:', email); // Add this line
       const userData = await login(email, password);
+      console.log('Login successful:', userData); // Add this line
       onLogin(userData);
     } catch (error: unknown) {
-      if (error instanceof Error) {
+      console.error('Login error:', error); // Add this line
+      if (axios.isAxiosError(error) && error.response) {
+        setError(`Login failed: ${error.response.data.message}`);
+      } else if (error instanceof Error) {
         setError(`Login failed: ${error.message}`);
       } else {
         setError('Login failed. Please check your credentials and try again.');

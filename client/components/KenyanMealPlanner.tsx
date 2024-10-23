@@ -1,3 +1,14 @@
+/**
+ * KenyanMealPlanner Component
+ * 
+ * This component allows users to create, save, and manage weekly meal plans
+ * based on Kenyan cuisine. It includes functionality for:
+ * - Adding meals to specific days and categories
+ * - Saving and loading meal plans
+ * - Generating a shopping list
+ * - Exporting the meal plan to various formats
+ */
+
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import { Button } from "../components/ui/button"
@@ -33,6 +44,11 @@ type MealPlan = {
   createdAt: string;
 };
 
+/**
+ * Fetches Kenyan dishes from the API
+ * @param {string} [category] - Optional category to filter dishes
+ * @returns {Promise<Dish[]>} Array of dish objects
+ */
 const fetchKenyanDishes = async (category?: string): Promise<Dish[]> => {
   try {
     const response = await axios.get<Dish[]>(`${process.env.NEXT_PUBLIC_API_URL}/api/recipes`, {

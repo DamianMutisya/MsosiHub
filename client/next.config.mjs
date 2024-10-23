@@ -21,6 +21,17 @@ const nextConfig = {
       config.resolve.alias['@'] = path.resolve(__dirname, 'client');
       return config;
     },
+    async rewrites() {
+      return [
+        {
+          source: '/api/:path*',
+          // eslint-disable-next-line no-undef
+          destination: process.env.NODE_ENV === 'development' 
+            ? 'http://localhost:5000/api/:path*' 
+            : '/api/:path*',
+        },
+      ]
+    },
   }
 
 export default nextConfig;

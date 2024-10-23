@@ -1,12 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
 import { useState, useEffect } from 'react'
 import { Button } from "../components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "../components/ui/card"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/tabs"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "../components/ui/dialog"
-import { Label } from "../components/ui/label"
-import { MessageSquare, Star, Clock, ChefHat, Heart, Calendar, Book, Users, Lightbulb, Twitter, Instagram, Facebook, Youtube, Github, Linkedin } from "lucide-react"
+import { Star, Clock, ChefHat, Heart, Calendar, Book, Users, Lightbulb, GithubIcon, TwitterIcon, LinkedinIcon, YoutubeIcon } from "lucide-react"
 import { RecipeDetailsModal } from './RecipeDetailsModal';
 import axios from 'axios';
 import KenyanMealPlanner from './KenyanMealPlanner';
@@ -15,7 +14,6 @@ import CommunityAndHelpSection from './CommunityAndHelpSection';
 import { Learn } from './learn'; // Adjust the path as necessary
 import React from 'react';
 import Image from "next/image";
-import { CategoryRecipeCard } from './CategoryRecipeCard';
 import { UserMenu } from './UserMenu';
 import { SearchComponent } from './SearchComponent';
 import { useAuth } from '../context/AuthContext';
@@ -70,34 +68,14 @@ const getTabIcon = (tab: string) => {
   }
 };
 
-const getSocialIcon = (social: string) => {
-  switch (social) {
-    case 'Twitter':
-      return <Twitter className="w-5 h-5" />;
-    case 'Instagram':
-      return <Instagram className="w-5 h-5" />;
-    case 'Facebook':
-      return <Facebook className="w-5 h-5" />;
-    case 'Youtube':
-      return <Youtube className="w-5 h-5" />;
-    case 'Github':
-      return <Github className="w-5 h-5" />;
-    case 'Linkedin':
-      return <Linkedin className="w-5 h-5" />;
-    default:
-      return null;
-  }
-};
 
 export function EnhancedKenyanRecipeExplorerComponent() {
   const { user, logout } = useAuth();
   const [selectedCategory] = useState<string | null>(null);
   const [searchResults, setSearchResults] = useState<Recipe[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [recipes, setRecipes] = useState<Recipe[]>([]);
-  const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [recommendations,] = useState<Recipe[]>([]);
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [searchError, setSearchError] = useState<string | null>(null);
 
   const fetchUserData = async () => {
     try {
@@ -124,38 +102,26 @@ export function EnhancedKenyanRecipeExplorerComponent() {
     logout();
   };
 
-  const loadMoreRecipes = async () => {
-    if (loading) return;
-    setLoading(true);
-    try {
-      const response = await axios.get<Recipe[]>(`${process.env.NEXT_PUBLIC_API_URL}/api/recipes`, {
-        params: {
-          category: selectedCategory,
-          page: page + 1,
-        },
-      });
-      setRecipes((prev) => [...prev, ...response.data]);
-      setPage((prev) => prev + 1);
-    } catch (error) {
-      console.error('Error loading more recipes:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
-
-  const quickFilters = ['']
 
   const handleSearchResults = (results: Recipe[]) => {
     console.log('Search results in homepage:', results);
     setSearchResults(results);
     setIsModalOpen(true);
+    setSearchError(null);
+  };
+
+  const handleSearchError = (error: string) => {
+    console.error('Search error:', error);
+    setSearchError(error);
+    setIsModalOpen(false);
   };
 
   const handleError = (error: Error) => {
     console.error('Error in RecipeDetailsModal:', error);
     // You can add additional error handling here, such as showing a toast notification
   };
+
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -206,7 +172,10 @@ export function EnhancedKenyanRecipeExplorerComponent() {
                   <div className="absolute inset-0 bg-gradient-to-r from-black to-transparent flex flex-col justify-center items-start text-white p-8">
                     <h1 className="text-5xl font-bold mb-4 text-white">Discover the Flavors of Kenya</h1>
                     <div className="w-full max-w-md">
-                      <SearchComponent onSearchResults={handleSearchResults} />
+                      <SearchComponent onSearchResults={handleSearchResults} onError={handleSearchError} />
+                      {searchError && (
+                        <p className="text-red-500 mt-2">{searchError}</p>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -241,76 +210,8 @@ export function EnhancedKenyanRecipeExplorerComponent() {
                 </div>
               </div>
               
-              {/* New Category Section */}
-              <div className="mb-8">
-                <h2 className="text-2xl font-bold mb-4">Explore Categories</h2>
-                <CategorySection />
-              </div>
-              
-              <div style={{ marginBottom: '20px' }}>
-                <h2 style={{ fontSize: '24px', fontWeight: 'bold', marginBottom: '10px' }}></h2>
-                <div style={{ display: 'flex', flexWrap: 'wrap' }}>
-                  {quickFilters.map((filter) => (
-                    <button
-                      key={filter}
-                      style={{
-                        padding: '5px 10px',
-                        margin: '2px',
-                        border: '1px solid #ccc',
-                        borderRadius: '15px',
-                        cursor: 'pointer',
-                        backgroundColor: '#f0f0f0',
-                      }}
-                    >
-                      {filter}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {recipes.map((recipe) => (
-                  <CategoryRecipeCard
-                    key={recipe._id}  // Changed from 'id' to '_id'
-                    recipe={{
-                      _id: recipe._id,
-                      recipe_name: recipe.recipe_name,
-                      image_url: recipe.image_url,
-                      averageRating: recipe.averageRating,
-                      cook_time: recipe.cook_time,
-                      difficulty: recipe.difficulty,
-                      // Map any other fields you need
-                    }}
-                  />
-                ))}
-              </div>
-              {recipes.length > 0 && (
-                <div className="mt-8 text-center">
-                  <Button onClick={loadMoreRecipes} disabled={loading}>
-                    {loading ? 'Loading...' : 'Load More'}
-                  </Button>
-                </div>
-              )}
-              {recommendations.length > 0 && (
-                <div className="mt-12">
-                  <h2 className="text-2xl font-bold mb-4">You might also like</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {recommendations.map((recipe) => (
-                      <CategoryRecipeCard
-                        key={recipe._id}
-                        recipe={{
-                          _id: recipe._id,
-                          recipe_name: recipe.recipe_name,
-                          image_url: recipe.image_url,
-                          averageRating: recipe.averageRating,
-                          cook_time: recipe.cook_time,
-                          difficulty: recipe.difficulty,
-                          // Map any other fields you need
-                        }}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
+              {/* Add the new CategorySection here */}
+              <CategorySection />
             </TabsContent>
             <TabsContent value="meal-planner">
               <KenyanMealPlanner />
@@ -329,50 +230,34 @@ export function EnhancedKenyanRecipeExplorerComponent() {
       </Tabs>
 
       {/* Footer */}
-      <footer className="bg-gray-800 text-white py-12">
-        <div className="container mx-auto px-4">
-          <div className="flex flex-wrap justify-between items-center">
-            <div className="flex items-center mb-6 md:mb-0">
-              <Image 
-                src="/images/logo.png" 
-                alt="MsosiHub Logo" 
-                width={100} 
-                height={100}
-                className="mr-4"
-              />
-              <p className="text-sm">Exploring Kenya&apos;s culinary treasures</p>
-            </div>
-            <div className="flex space-x-6 mb-6 md:mb-0">
-              <a href="https://github.com/DamianMutisya" target="_blank" rel="noopener noreferrer" className="hover:text-green-400 transition-colors duration-200">
-                {getSocialIcon('Github')}
-              </a>
-              <a href="https://twitter.com/DamianMutisya" target="_blank" rel="noopener noreferrer" className="hover:text-green-400 transition-colors duration-200">
-                {getSocialIcon('Twitter')}
-              </a>
-              <a href="https://www.linkedin.com/in/damian-mutisya-94291b170/" target="_blank" rel="noopener noreferrer" className="hover:text-green-400 transition-colors duration-200">
-                {getSocialIcon('Linkedin')}
-              </a>
-              <a href="https://www.youtube.com/@Damianomutisya" target="_blank" rel="noopener noreferrer" className="hover:text-green-400 transition-colors duration-200">
-                {getSocialIcon('Youtube')}
-              </a>
-            </div>
-            <FeedbackDialog />
+      <footer className="bg-gradient-to-r from-green-800 to-green-600 text-white py-8">
+        <div className="container mx-auto px-4 text-center">
+          <Image src="/images/logo.png" alt="MsosiHub Logo" width={90} height={90} className="mx-auto mb-6" />
+          <div className="flex justify-center space-x-8 mb-6">
+            <a href="https://github.com/DamianMutisya" target="_blank" rel="noopener noreferrer" className="text-white hover:text-green-300 transition-colors duration-200">
+              <GithubIcon className="h-6 w-6" />
+            </a>
+            <a href="https://twitter.com/DamianMutisya" target="_blank" rel="noopener noreferrer" className="text-white hover:text-green-300 transition-colors duration-200">
+              <TwitterIcon className="h-6 w-6" />
+            </a>
+            <a href="https://www.linkedin.com/in/damian-mutisya-94291b170/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-green-300 transition-colors duration-200">
+              <LinkedinIcon className="h-6 w-6" />
+            </a>
+            <a href="https://www.youtube.com/@Damianomutisya" target="_blank" rel="noopener noreferrer" className="text-white hover:text-green-300 transition-colors duration-200">
+              <YoutubeIcon className="h-6 w-6" />
+            </a>
           </div>
-          <div className="mt-8 pt-8 border-t border-gray-700 text-center text-gray-400">
-            <p>&copy; 2023 MsosiHub. All rights reserved.</p>
-            <div className="mt-4 space-x-6">
-              {['Privacy Policy', 'Terms of Service', 'Contact Us'].map((link) => (
-                <a key={link} href="#" className="hover:text-white transition-colors duration-200">
-                  {link}
-                </a>
-              ))}
-            </div>
+          <div className="mb-6 space-x-6 text-sm">
+            <a href="#" className="hover:text-green-300 transition-colors duration-200">Privacy Policy</a>
+            <a href="#" className="hover:text-green-300 transition-colors duration-200">Terms of Service</a>
+            <a href="#" className="hover:text-green-300 transition-colors duration-200">Contact Us</a>
           </div>
+          <p className="text-sm font-light tracking-wider">&copy; 2024 MsosiHub. All rights reserved.</p>
         </div>
       </footer>
 
       <RecipeDetailsModal
-        recipes={searchResults}
+        recipes={searchResults.length > 0 ? searchResults : (selectedRecipe ? [selectedRecipe] : [])}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onError={handleError}
@@ -459,73 +344,16 @@ function RecipeCard({ title, description, image, rating, time, difficulty }: {
 
 
 
-function FeedbackDialog() {
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [message, setMessage] = useState('')
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    console.log('Feedback submitted:', { name, email, message })
-    setName('')
-    setEmail('')
-    setMessage('')
-  }
 
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline" className="bg-white/20 hover:bg-white/30 text-white">
-          <MessageSquare className="h-4 w-4 mr-2" />
-          Feedback
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>Send Feedback</DialogTitle>
-          <DialogDescription>
-          We value your input! Please share your thoughts, suggestions, or report any issues you&apos;ve encountered
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="name">Name</Label>
-            <input
-              type="text"
-              placeholder="Your name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            />
-          </div>
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <input
-              type="email"
-              placeholder="Your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            />
-          </div>
-          <div>
-            <Label htmlFor="message">Message</Label>
-            <textarea
-              placeholder="Your feedback"
-              value={message}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setMessage(e.target.value)}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-            />
-          </div>
-          <Button type="submit" className="w-full">Submit Feedback</Button>
-        </form>
-      </DialogContent>
-    </Dialog>
-  )
-}
+
+
+
+
+
+
+
 
 
 

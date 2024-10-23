@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { AuthDialog } from './authdialog';
 import Image from 'next/image';
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import { FacebookIcon, TwitterIcon, InstagramIcon } from 'lucide-react';
+import { TwitterIcon, YoutubeIcon, GithubIcon, LinkedinIcon } from 'lucide-react';
 
 export function LandingPage() {
   const router = useRouter();
@@ -77,22 +77,25 @@ export function LandingPage() {
         </main>
 
         <footer className="bg-green-800 text-white py-8 relative">
-          <div className="absolute top-0 left-0 right-0">
+          <div className="absolute top-0 left-0 right-0 pointer-events-none">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
               <path fill="#ffffff" fillOpacity="1" d="M0,96L80,112C160,128,320,160,480,154.7C640,149,800,107,960,90.7C1120,75,1280,85,1360,90.7L1440,96L1440,0L1360,0C1280,0,1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0L0,0Z"></path>
             </svg>
           </div>
-          <div className="container mx-auto px-4 text-center">
-            <Image src="/images/logo-white.png" alt="MsosiHub Logo" width={90} height={90} className="mx-auto mb-4" />
+          <div className="container mx-auto px-4 text-center relative z-10">
+            <Image src="/images/logo.png" alt="MsosiHub Logo" width={100} height={100} className="mx-auto mb-4" />
             <div className="flex justify-center space-x-6 mb-4">
-              <a href="#" className="text-white hover:text-green-300 transition-colors duration-200">
-                <FacebookIcon className="h-6 w-6" />
+              <a href="https://github.com/DamianMutisya" target="_blank" rel="noopener noreferrer" className="text-white hover:text-green-300 transition-colors duration-200">
+                <GithubIcon className="h-6 w-6" />
               </a>
-              <a href="#" className="text-white hover:text-green-300 transition-colors duration-200">
+              <a href="https://twitter.com/DamianMutisya" target="_blank" rel="noopener noreferrer" className="text-white hover:text-green-300 transition-colors duration-200">
                 <TwitterIcon className="h-6 w-6" />
               </a>
-              <a href="#" className="text-white hover:text-green-300 transition-colors duration-200">
-                <InstagramIcon className="h-6 w-6" />
+              <a href="https://www.linkedin.com/in/damian-mutisya-94291b170/" target="_blank" rel="noopener noreferrer" className="text-white hover:text-green-300 transition-colors duration-200">
+                <LinkedinIcon className="h-6 w-6" />
+              </a>
+              <a href="https://www.youtube.com/@Damianomutisya" target="_blank" rel="noopener noreferrer" className="text-white hover:text-green-300 transition-colors duration-200">
+                <YoutubeIcon className="h-6 w-6" />
               </a>
             </div>
             <p className="text-sm font-light tracking-wider">&copy; 2024 MsosiHub. All rights reserved.</p>

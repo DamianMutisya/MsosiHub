@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { CategoryRecipeCard } from './CategoryRecipeCard'
 import { Button } from "../components/ui/button"
 import { useInView } from 'react-intersection-observer'
+import { RecipeDetailsModal } from './RecipeDetailsModal'
 
 interface Recipe {
   _id: string;
@@ -21,16 +22,25 @@ interface RecipeListProps {
   isLoading: boolean;
   hasNextPage: boolean | undefined;
   fetchNextPage: () => void;
+  onViewRecipe: (recipe: Recipe) => void;
 }
 
-export function RecipeList({ recipes, isLoading, hasNextPage, fetchNextPage }: RecipeListProps) {
+export function RecipeList({ recipes, isLoading, hasNextPage, fetchNextPage, onViewRecipe }: RecipeListProps) {
   const { ref, inView } = useInView()
+  const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   React.useEffect(() => {
     if (inView && hasNextPage) {
       fetchNextPage()
     }
   }, [inView, fetchNextPage, hasNextPage])
+
+  const handleViewRecipe = (recipe: Recipe) => {
+    onViewRecipe(recipe);
+    setSelectedRecipe(recipe);
+    setIsModalOpen(true);
+  };
 
   return (
     <div className="space-y-6">
@@ -39,6 +49,7 @@ export function RecipeList({ recipes, isLoading, hasNextPage, fetchNextPage }: R
           <CategoryRecipeCard
             key={recipe._id}
             recipe={recipe}
+            onViewRecipe={() => handleViewRecipe(recipe)}
           />
         ))}
       </div>
@@ -49,6 +60,12 @@ export function RecipeList({ recipes, isLoading, hasNextPage, fetchNextPage }: R
           </Button>
         </div>
       )}
+      <RecipeDetailsModal
+        recipes={selectedRecipe ? [selectedRecipe] : []}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onError={(error) => console.error('Error in RecipeDetailsModal:', error)}
+      />
     </div>
   );
 }
