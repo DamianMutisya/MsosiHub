@@ -15,7 +15,11 @@ dotenv.config({
 });
 
 app.use(cors({
-  origin: ['https://msosi-hub.vercel.app', 'http://localhost:3000'],
+  origin: [
+    'https://msosihub-fhr2vq3xb-damian-mutisya.vercel.app', 
+    'https://msosihub.vercel.app',
+    'http://localhost:3000'
+  ],
   credentials: true
 }));
 app.use(express.json());
