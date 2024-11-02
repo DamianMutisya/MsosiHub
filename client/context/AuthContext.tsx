@@ -66,19 +66,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const googleLogin = async (credential: string) => {
     try {
-      console.log('Attempting Google login with credential:', credential.substring(0, 10) + '...');
-      const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/api/users/google-login`, { token: credential });
+      console.log('Making Google login request to:', `${process.env.NEXT_PUBLIC_API_URL}/api/users/google-login`);
+      
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/users/google-login`,
+        { token: credential },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+          },
+          withCredentials: true,
+          timeout: 10000, // 10 second timeout
+        }
+      );
+
       console.log('Google login response:', response.data);
       setUser(response.data);
       localStorage.setItem('token', response.data.token);
       router.push('/dashboard');
       return response.data;
-    } catch (error) {
-      console.error('Google login error:', error);
-      if (axios.isAxiosError(error) && error.response) {
-        console.error('Server response:', error.response.data);
-      }
-      throw error;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error('Detailed Google login error:', {
+        message: error.message,
+        code: error.code,
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        data: error.response?.data,
+        url: error.config?.url,
+        method: error.config?.method,
+        headers: error.config?.headers
+      });
+
+      throw new Error(
+        error.response?.data?.message || 
+        error.message || 
+        'Failed to connect to the server'
+      );
     }
   };
 

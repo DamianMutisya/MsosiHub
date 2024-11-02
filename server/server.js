@@ -14,14 +14,21 @@ dotenv.config({
   path: path.resolve(__dirname, `.env.${process.env.NODE_ENV}`)
 });
 
-app.use(cors({
-  origin: [
-    'https://msosihub-fhr2vq3xb-damian-mutisya.vercel.app', 
-    'https://msosihub.vercel.app',
-    'http://localhost:3000'
-  ],
-  credentials: true
-}));
+const corsOptions = {
+  origin: process.env.NODE_ENV === 'production'
+    ? ['https://msosi-hub.vercel.app']
+    : ['http://localhost:3000', 'https://msosi-hub.vercel.app', 'https://msosihub-fhr2vq3xb-damian-mutisya.vercel.app'],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  maxAge: 600 // 10 minutes
+};
+
+app.use(cors(corsOptions));
+
+// Add a pre-flight route handler
+app.options('*', cors(corsOptions));
+
 app.use(express.json());
 
 app.use('/api/categories', require('./routes/categories'));
@@ -219,3 +226,12 @@ app.listen(PORT, () => {
 module.exports = {
   fetchYouTubeVideo
 };
+
+// Add this near your other route definitions
+app.get('/api/health', (req, res) => {
+  res.json({ 
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV
+  });
+});
