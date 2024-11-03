@@ -16,13 +16,14 @@ dotenv.config({
 
 const corsOptions = {
   origin: process.env.NODE_ENV === 'production'
-    ? ['https://msosi-hub.vercel.app']
-    : ['http://localhost:3000', 'https://msosi-hub.vercel.app', 'https://msosihub-fhr2vq3xb-damian-mutisya.vercel.app'],
+    ? ['https://msosi-hub.vercel.app', 'https://msosihub-*.vercel.app']
+    : ['http://localhost:3000'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-  maxAge: 600 // 10 minutes
+  maxAge: 600
 };
+
 
 app.use(cors(corsOptions));
 

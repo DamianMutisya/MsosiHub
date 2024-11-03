@@ -80,14 +80,27 @@ router.get('/', async (req, res) => {
     if (category) {
       query.category = category;
     }
+    
+    console.log('Fetching recipes with query:', query);
     const recipes = await Recipe.find(query);
+    console.log('Found recipes:', recipes.length);
+    
     if (!recipes || recipes.length === 0) {
-      return res.status(404).json({ message: 'No recipes found' });
+      console.log('No recipes found for query:', query);
+      return res.status(404).json({ 
+        message: 'No recipes found',
+        query: query 
+      });
     }
+    
     res.json(recipes);
   } catch (error) {
     console.error('Error fetching recipes:', error);
-    res.status(500).json({ message: 'Error fetching recipes', error: error.message });
+    res.status(500).json({ 
+      message: 'Error fetching recipes', 
+      error: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    });
   }
 });
 

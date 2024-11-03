@@ -6,6 +6,11 @@ import "./globals.css";
 import { ToastProvider } from '../components/ui/use-toast';
 import { AuthProvider } from '../context/AuthContext';
 
+// Add environment variable validation
+if (!process.env.NEXT_PUBLIC_API_URL) {
+  throw new Error('NEXT_PUBLIC_API_URL environment variable is not set');
+}
+
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",

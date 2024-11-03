@@ -1,5 +1,5 @@
 import { useInfiniteQuery, InfiniteData } from '@tanstack/react-query'
-import axios from 'axios'
+import api from '../lib/api'
 
 interface Recipe {
   _id: string;
@@ -16,7 +16,7 @@ interface PageData {
 }
 
 const fetchRecipes = async ({ pageParam = 0, searchTerm }: { pageParam: number, searchTerm: string }): Promise<PageData> => {
-  const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/api/edamam-recipes`, {
+  const response = await api.get('/api/edamam-recipes', {
     params: {
       searchTerm,
       from: pageParam,
