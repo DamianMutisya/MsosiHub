@@ -3,7 +3,8 @@ import axiosRetry from 'axios-retry';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
-  timeout: 15000,
+  timeout: 10000,
+  withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
   }
@@ -34,12 +35,24 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Add request interceptor for better error handling
+api.interceptors.request.use(
+  config => {
+    console.log(`Making ${config.method?.toUpperCase()} request to ${config.url}`);
+    return config;
+  },
+  error => {
+    console.error('Request error:', error);
+    return Promise.reject(error);
+  }
+);
+
 // Add response interceptor
 api.interceptors.response.use(
   response => response,
   error => {
-    // Return empty data instead of rejecting for 404s
     if (error.response?.status === 404) {
+      console.log('Resource not found, returning empty array');
       return Promise.resolve({ data: [] });
     }
     return Promise.reject(error);

@@ -52,12 +52,21 @@ type MealPlan = {
 const fetchKenyanDishes = async (category?: string): Promise<Dish[]> => {
   try {
     const response = await axios.get<Dish[]>(`${process.env.NEXT_PUBLIC_API_URL}/api/recipes`, {
-      params: category ? { category } : {}
+      params: category ? { category } : {},
+      withCredentials: true, // Add this
+      timeout: 10000, // 10 second timeout
     });
+    
+    if (!response.data) {
+      console.log('No data received from API');
+      return [];
+    }
+    
     return Array.isArray(response.data) ? response.data : [];
   } catch (error) {
     console.error('Error fetching Kenyan dishes:', error);
-    throw error;
+    // Return empty array instead of throwing
+    return [];
   }
 }
 

@@ -81,26 +81,20 @@ router.get('/', async (req, res) => {
       query.category = category;
     }
     
-    // Add timeout to MongoDB query
-    const recipes = await Recipe.find(query).maxTimeMS(5000); // 5 second timeout
+    console.log('Fetching recipes with query:', query);
+    const recipes = await Recipe.find(query)
+      .maxTimeMS(5000)
+      .lean()
+      .exec();
     
-    if (!recipes || recipes.length === 0) {
-      return res.status(404).json({ 
-        message: 'No recipes found',
-        query: query 
-      });
-    }
+    console.log(`Found ${recipes?.length || 0} recipes`);
     
-    res.json(recipes);
+    // Always return an array, even if empty
+    res.json(recipes || []);
   } catch (error) {
     console.error('Error fetching recipes:', error);
-    res.status(error.name === 'MongooseError' && error.message.includes('timeout') 
-      ? 504 // Gateway Timeout
-      : 500
-    ).json({ 
-      message: 'Error fetching recipes', 
-      error: error.message
-    });
+    // Return empty array instead of error
+    res.json([]);
   }
 });
 

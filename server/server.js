@@ -19,11 +19,12 @@ const corsOptions = {
   origin: [
     'https://msosi-hub.vercel.app',
     'https://msosihub.onrender.com',
-    process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : null
-  ].filter(Boolean),
+    'http://localhost:3000'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['set-cookie'],
 };
 
 app.use(cors(corsOptions));
