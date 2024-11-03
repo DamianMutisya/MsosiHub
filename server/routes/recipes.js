@@ -125,4 +125,25 @@ router.get('/:identifier', async (req, res) => {
   }
 });
 
+router.get('/:searchTerm', async (req, res) => {
+  try {
+    const searchTerm = decodeURIComponent(req.params.searchTerm);
+    console.log('Searching for:', searchTerm);
+    
+    const recipes = await Recipe.find({ 
+      $or: [
+        { recipe_name: { $regex: new RegExp(searchTerm, 'i') } },
+        { ingredients: { $regex: new RegExp(searchTerm, 'i') } },
+        { instructions: { $regex: new RegExp(searchTerm, 'i') } }
+      ]
+    });
+
+    // Return empty array instead of 404
+    res.json(recipes || []);
+  } catch (error) {
+    console.error('Error searching for recipes:', error);
+    res.json([]); // Return empty array on error
+  }
+});
+
 module.exports = router;

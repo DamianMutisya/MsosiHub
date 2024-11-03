@@ -15,51 +15,33 @@ interface PageData {
   nextPage: number | null;
 }
 
-const fetchRecipes = async ({ pageParam = 0, searchTerm }: { pageParam: number, searchTerm: string }): Promise<PageData> => {
-  try {
-    const response = await api.get('/api/edamam-recipes', {
-      params: {
-        searchTerm,
-        from: pageParam,
-        to: pageParam + 9
-      }
-    });
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const recipes: Recipe[] = response.data.hits.map((hit: any) => ({
-      _id: hit.recipe.uri,
-      recipe_name: hit.recipe.label,
-      image_url: hit.recipe.image,
-      source: hit.recipe.source,
-      url: hit.recipe.url,
-      ingredients: hit.recipe.ingredientLines,
-    }));
-
-    return {
-      recipes,
-      nextPage: response.data.more ? pageParam + 9 : null
-    };
-  } catch (error) {
-    // Log the error for debugging
-    console.error('Error fetching recipes:', error);
-    
-    // Return empty results instead of throwing
-    return {
-      recipes: [],
-      nextPage: null
-    };
-  }
-}
-
 export function useRecipeSearch(searchTerm: string) {
   return useInfiniteQuery<PageData, Error, InfiniteData<PageData>, [string, string], number>({
     queryKey: ['recipes', searchTerm],
-    queryFn: ({ pageParam }) => fetchRecipes({ pageParam, searchTerm }),
+    queryFn: async ({ pageParam }) => {
+      try {
+        const response = await api.get(`/api/recipes/${encodeURIComponent(searchTerm)}`, {
+          params: {
+            from: pageParam,
+            to: pageParam + 9
+          }
+        });
+
+        return {
+          recipes: response.data || [],
+          nextPage: response.data?.length === 10 ? pageParam + 9 : null
+        };
+      } catch (error) {
+        console.error('Recipe search error:', error);
+        return {
+          recipes: [],
+          nextPage: null
+        };
+      }
+    },
     initialPageParam: 0,
     getNextPageParam: (lastPage) => lastPage.nextPage,
     enabled: !!searchTerm,
-    staleTime: 5 * 60 * 1000, // 5 minutes
-    retry: 2, // Retry failed requests twice
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
-  })
+    staleTime: 5 * 60 * 1000,
+  });
 }

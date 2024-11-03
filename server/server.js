@@ -6,6 +6,7 @@ const path = require('path');
 const passport = require('passport');
 require('./config/passport'); 
 const axios = require('axios');
+const session = require('express-session');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -15,15 +16,15 @@ dotenv.config({
 });
 
 const corsOptions = {
-  origin: process.env.NODE_ENV === 'production'
-    ? ['https://msosi-hub.vercel.app', 'https://msosihub-*.vercel.app']
-    : ['http://localhost:3000'],
+  origin: [
+    'https://msosi-hub.vercel.app',
+    'https://msosihub.onrender.com',
+    process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : null
+  ].filter(Boolean),
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
-  maxAge: 600
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
-
 
 app.use(cors(corsOptions));
 
@@ -236,3 +237,14 @@ app.get('/api/health', (req, res) => {
     environment: process.env.NODE_ENV
   });
 });
+
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'your-secret-key',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
+}));

@@ -3,54 +3,45 @@ import axiosRetry from 'axios-retry';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
-  timeout: 10000, // Reduce timeout to 10 seconds
+  timeout: 15000,
   headers: {
     'Content-Type': 'application/json',
   }
 });
 
-// Configure retry logic with more specific conditions
+// Configure retry logic
 axiosRetry(api, {
   retries: 3,
   retryDelay: (retryCount) => {
     return retryCount * 1000; // Time interval between retries (1s, 2s, 3s)
   },
   retryCondition: (error: AxiosError): boolean => {
-    // Retry on timeout errors, network errors, and 5xx errors
-    return (
+    return !!(
       axiosRetry.isNetworkOrIdempotentRequestError(error) ||
       error.code === 'ECONNABORTED' ||
-      (error.response?.status !== undefined && error.response?.status >= 500) ||
-      false
+      (error.response && error.response.status >= 500)
     );
   },
-  // Add timeout between retries
   shouldResetTimeout: true,
 });
 
-// Add response interceptor for better error handling
+// Add request interceptor to handle URL encoding
+api.interceptors.request.use((config) => {
+  if (config.url) {
+    // Encode URL parameters properly
+    config.url = encodeURI(config.url);
+  }
+  return config;
+});
+
+// Add response interceptor
 api.interceptors.response.use(
   response => response,
-  (error: AxiosError) => {
-    // Log the error for debugging
-    console.error('API Error:', {
-      url: error.config?.url,
-      method: error.config?.method,
-      status: error.response?.status,
-      message: error.message,
-    });
-
-    // Customize error message based on the error type
-    if (error.code === 'ECONNABORTED') {
-      error.message = 'Request timed out. Please try again.';
-    } else if (!error.response) {
-      error.message = 'Network error. Please check your connection.';
-    } else if (error.response.status === 404) {
-      error.message = 'Resource not found.';
-    } else if (error.response.status >= 500) {
-      error.message = 'Server error. Please try again later.';
+  error => {
+    // Return empty data instead of rejecting for 404s
+    if (error.response?.status === 404) {
+      return Promise.resolve({ data: [] });
     }
-
     return Promise.reject(error);
   }
 );
