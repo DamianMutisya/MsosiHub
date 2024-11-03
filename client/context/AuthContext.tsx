@@ -64,47 +64,48 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     router.push('/');
   };
 
-  const googleLogin = async (credential: string) => {
-    try {
-      console.log('Making Google login request to:', `${process.env.NEXT_PUBLIC_API_URL}/api/users/google-login`);
-      
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/users/google-login`,
-        { token: credential },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          },
-          withCredentials: true,
-          timeout: 10000, // 10 second timeout
+  const googleLogin = async (credential: string): Promise<LoginResponse> => {
+    const maxRetries = 2;
+    let currentTry = 0;
+
+    while (currentTry <= maxRetries) {
+      try {
+        console.log(`Google login attempt ${currentTry + 1} of ${maxRetries + 1}`);
+        
+        const response = await axios.post<LoginResponse>(
+          `${process.env.NEXT_PUBLIC_API_URL}/api/users/google-login`,
+          { token: credential },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            timeout: 30000, // Increased to 30 seconds
+          }
+        );
+
+        console.log('Google login successful');
+        setUser(response.data);
+        localStorage.setItem('token', response.data.token);
+        router.push('/dashboard');
+        return response.data;
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        currentTry++;
+        console.error(`Attempt ${currentTry} failed:`, error);
+
+        if (currentTry > maxRetries) {
+          if (error.code === 'ECONNABORTED') {
+            throw new Error('The request took too long to complete. Please try again.');
+          }
+          throw error;
         }
-      );
 
-      console.log('Google login response:', response.data);
-      setUser(response.data);
-      localStorage.setItem('token', response.data.token);
-      router.push('/dashboard');
-      return response.data;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (error: any) {
-      console.error('Detailed Google login error:', {
-        message: error.message,
-        code: error.code,
-        status: error.response?.status,
-        statusText: error.response?.statusText,
-        data: error.response?.data,
-        url: error.config?.url,
-        method: error.config?.method,
-        headers: error.config?.headers
-      });
-
-      throw new Error(
-        error.response?.data?.message || 
-        error.message || 
-        'Failed to connect to the server'
-      );
+        // Wait before retrying (exponential backoff)
+        await new Promise(resolve => setTimeout(resolve, 1000 * currentTry));
+      }
     }
+    throw new Error('Failed to login after multiple attempts');
   };
 
   return (

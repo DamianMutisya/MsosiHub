@@ -142,31 +142,73 @@ router.post('/google-auth/callback', async (req, res) => {
 router.post('/google-login', async (req, res) => {
   try {
     const { token } = req.body;
-    const ticket = await oauth2Client.verifyIdToken({
+    
+    if (!token) {
+      return res.status(400).json({ message: 'Token is required' });
+    }
+
+    // Add timeout to Google verification
+    const verifyPromise = oauth2Client.verifyIdToken({
       idToken: token,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
+
+    const ticket = await Promise.race([
+      verifyPromise,
+      new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Google verification timeout')), 15000)
+      )
+    ]);
+
     const payload = ticket.getPayload();
     const { email, name, sub: googleId } = payload;
 
-    let user = await User.findOne({ email });
-    if (!user) {
-      user = new User({ 
-        username: name, 
-        email, 
-        googleId 
-      });
-      await user.save();
-    } else if (!user.googleId) {
-      user.googleId = googleId;
-      await user.save();
-    }
+    // Use findOneAndUpdate to reduce database operations
+    const user = await User.findOneAndUpdate(
+      { email },
+      {
+        $setOnInsert: {
+          username: name,
+          email,
+        },
+        $set: {
+          googleId,
+        }
+      },
+      {
+        new: true,
+        upsert: true,
+      }
+    );
 
-    const jwtToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    res.json({ token: jwtToken, userId: user._id, username: user.username });
+    const jwtToken = jwt.sign(
+      { userId: user._id, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '24h' }
+    );
+
+    return res.json({
+      token: jwtToken,
+      userId: user._id,
+      username: user.username,
+      email: user.email
+    });
+
   } catch (error) {
     console.error('Google login error:', error);
-    res.status(500).json({ message: 'Server error', error: error.message });
+    
+    // More specific error messages
+    if (error.message === 'Google verification timeout') {
+      return res.status(504).json({
+        message: 'Google verification timed out',
+        error: error.message
+      });
+    }
+
+    return res.status(500).json({
+      message: 'Authentication failed',
+      error: error.message
+    });
   }
 });
 
